@@ -1,0 +1,27 @@
+# Dependencies / build outputs
+node_modules/
+dist/
+dist-ssr/
+.cache/
+.venv-omnivoice/
+
+# Runtime files
+*.log
+*.pid
+.env
+.env.local
+*.local
+.omx/
+
+# Large generated media
+*.mp3
+*.wav
+*.mp4
+*.mov
+*.mkv
+*.webm
+
+# Editors / OS
+.DS_Store
+.vscode/
+.idea/

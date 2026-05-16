@@ -1,0 +1,135 @@
+PRD: TikTok Mode & Viral Upgrade — ComicVideoAI
+
+1. Muc tieu
+- Tang Viral Score TikTok tu ~3.8 len >=7.0; giu chat luong hinh/am thanh >=8/10.
+- Tang retention 0-3s +20%, 0-10s +15%; share/save +15%.
+- Khong pha use case YouTube/poetic hien co.
+
+2. Van de hien tai
+- Hook cham, khong action/shock, khong lien quan ro net den noi dung nguoi dung nhap.
+- Pacing cham, reveal muon (30s), ending khong co payoff.
+- UI bi cat grid, sidebar chat, font nho, title bi truncate.
+- Khong co cong cu danh gia viral, khong co preview storyboard nhanh.
+
+3. Nguoi dung & use case
+- Creator TikTok/shorts, agency: can video 30-60s (9:16) co hook manh bam vao noi dung ho cung cap (prompt/anh/clip/script).
+- Flow: nhap prompt/asset -> chon TikTok Mode -> app phan tich noi dung -> de xuat hook/pacing/payoff -> xem score/heatmap/variations -> preview storyboard -> xuat.
+
+4. Pham vi
+- Trong pham vi: TikTok Mode (analyzer + hook/pacing/payoff), presets TikTok, viral scoring + heatmap, variations, storyboard preview nhe, UI responsive (grid/sidebar/font/overflow).
+- Ngoai pham vi: thay doi pipeline render/encode, he thong thanh toan.
+- Mo rong them: menu navigation ro rang (TikTok Mode, Presets, Score/Heatmap, Storyboard, Settings/API); cau hinh da model (OpenAI + nha cung cap free/chi phi thap: Groq, OpenRouter, Anthropic neu co, Stable Diffusion/Sdxl qua OpenRouter, TTS ElevenLabs + free TTS API), mo rong phong cach video, quyen mo rong cho tac nhan dieu phoi (agent) de goi model/API theo policy.
+
+5. KPI/Success
+- Viral Score trung binh >=7/10 (model noi bo).
+- Retention 3s +20%, 10s +15% so baseline.
+- Share + Save +15%.
+- UI: khong scroll ngang de thay day du nut grid tren mobile; title khong bi cat.
+
+6. Yeu cau chuc nang
+- TikTok Mode (core):
+  - Content analyzer trich entity, chu de, tone, xung dot, sentiment tu input (text/anh/script).
+  - Hook generator dua tren noi dung da phan tich; khong su dung mau cung. Cho phep chon tone (action/shock/horror/comedy) nhung wording phai bam entity/su kien tu user.
+  - Pacing auto: hook 0-3s; build nhanh; reveal 20-25s voi 60s hoac 12-18s voi 30s; ending co visual payoff phu hop noi dung.
+  - Ending/payoff suggestions: sinh 2-3 payoff lien quan (kho bau, mo cong bi an, jumpscare, do vat bi tiet lo).
+- Presets nhan vat/giiong ke:
+  - TikTok presets: explorer/urban/horror/comedy; moi preset auto-set pacing + hook tone nhung van bam noi dung user.
+  - Giup giu preset poetic/YouTube cu.
+- Viral scoring + goi y:
+  - Score Hook/Pacing/Emotional/Relatability/Meme/Shareability/Audio; canh bao neu <5/10; de xuat sua cu the (them action som, tang relatable, chen payoff).
+- Pacing heatmap:
+  - Timeline 0-10/10-30/30-50/50-60s voi nhan “cham/on”; de xuat cat gon neu doan dau cham.
+- Content variations:
+  - Sinh 3 phien ban (action/horror/literary) deu dua tren prompt nguoi dung; hien thi uoc luong Viral Score.
+- Storyboard preview nhe:
+  - Thumb + caption per scene; swap/delete/regen scene; UI thao tac <300ms; khong chan render cuoi.
+- UI/UX responsive:
+  - Grid art style auto-fit, khong bi cat, khong can scroll ngang.
+  - Sidebar collapsible tren mobile; font rem-based; badges ro rang; title khong truncate (ellipsis + tooltip/full view).
+  - Producer Review thanh accordion.
+- Menu/Navigation:
+  - Thanh menu chinh co cac muc: Home, TikTok Mode, Presets, Score/Heatmap, Storyboard, Settings/API.
+  - Settings/API cho phep chon provider, priority order, key/route env; hien thi trang thai ket noi.
+- Cau hinh API da model:
+  - Ho tro nhieu provider: OpenAI (GPT-4/4o, DALL·E), Groq (mixtral/llama), OpenRouter (llama/claude/sdxl), optional Anthropic, Stable Diffusion (qua OpenRouter/replicate), TTS: ElevenLabs + free TTS (VD: gptspeech, fakeyou hoac provider free khac).
+  - Cho phep gan model theo tac vu: Story text, Hook generator, Scoring, Image Gen, TTS. Co fallback order (VD: OpenAI -> Groq/OpenRouter -> local).
+  - Env-based config (.env.local): API keys, base URL, model id; toggle “chi dung free” hoac “uu tien nhanh/chi phi thap”.
+  - Log latency/chi phi theo provider de toi uu.
+- Mo rong phong cach video:
+  - Them preset phong cach: Action trailer, Horror glitch, Comedy meme, Anime/Manhua, Found footage, Vlog IRL, Dreamy/Poetic.
+  - Moi phong cach map sang model image (SDXL/OpenRouter), color grading profile, pacing/tone, am thanh (TTS voice, SFX pack).
+- Quyen tac nhan dieu phoi (agent):
+  - Agent duoc phep chon provider theo policy (chi phi thap/quality/latency) va tu dong fallback neu loi.
+  - Agent duoc phep goi regen hook/scene hoac doi model TTS/anh neu score thap; log lai hanh dong.
+  - Policy sandbox: danh sach API allowed + muc dich; chan content nhay cam.
+
+7. Yeu cau phi chuc nang
+- Mobile-first (9:16); TTFB UI <1s; preview sinh <4s trung binh; scoring/heatmap them <2s latency.
+- Hook/ending bat buoc bam noi dung user, khong duoc dung placeholder hay mau co san khong lien quan.
+- Giu chat luong hinh/am thanh >=8/10; khong giam do net.
+
+8. Luong nguoi dung
+- Input prompt/asset -> chon TikTok Mode + (optional) preset tone -> he thong phan tich noi dung -> de xuat 3 hook bam noi dung + pacing + payoff -> hien thi Viral Score + heatmap + 3 variations -> user chon/sua -> storyboard preview -> xuat video.
+
+9. Logic/tech
+- Analyzer nhe (rule + model) lay entity, chu de, hanh dong chinh, context anh (neu co) -> feed vao hook/payoff generator.
+- Hook generator: khung logic (action/shock/question) + chen entity/su kien bat buoc, action verb som, do dai 0-12 tu.
+- Reveal placer: heuristic/ML de dat twist trong cua so; ton trong length 30/60s.
+- Scoring v1: rule-based (hook timeliness, action tokens, relatable tokens, meme/shock markers, pacing bins, payoff presence); log de fine-tune.
+
+10. Riu ro & giam thieu
+- Hook khong lien quan: bat buoc insert entity/setting tu analyzer; allow user regen hook khac.
+- Latency: cache analyzer, model nhe; preload assets.
+- Meme/shock qua da: guideline filter; chan noi dung nhay cam.
+
+11. Timeline goi y
+- Tuan 1-2: TikTok Mode (analyzer + hook generator bam noi dung), pacing/reveal, UI grid/sidebar/font/overflow fix, accordion.
+- Tuan 3: Viral scoring + canh bao + heatmap; 3 variations.
+- Tuan 4-5: Storyboard preview nhe; toi uu latency; A/B test hook/pacing.
+- Tuan 6: Fine-tune scoring; trending sound/hashtag goi y (neu san du lieu).
+
+12. Tieu chi chap nhan
+- Hook sinh ra luon chua/ami chi entity/chude tu input; khong dung mau cung/placeholder.
+- Reveal nam trong 20-25s (60s) hoac 12-18s (30s) tru khi user override.
+- Art style grid hien du day nut tren mobile, khong scroll ngang.
+- Title khong bi cat tren mobile/desktop.
+- Viral Score + canh bao xuat hien sau moi lan sinh (<2s them).
+- Storyboard preview swap/regen scene hoat dong, thao tac UI <300ms.
+
+13. Chat luong thuong mai (product-grade)
+- Guardrails noi dung: filter nhay cam/violence/gore; agent chi goi API nam trong policy; log va block output nguy hiem.
+- Hook relevance: >=95% hook chua entity/chude chinh; track loi “hook khong lien quan”.
+- Payoff delivery: >=90% video co payoff/visual shock/closure ro rang; detect thieu payoff de canh bao.
+- Chat luong hinh/anh/am thanh: duy tri >=8/10 (human eval) so baseline; khong blur/noise; TTS khong metallic/robotic ro.
+- SLO: preview <4s p95; scoring/heatmap <2s p95; image gen/TTS fallback tu dong khi timeout/5xx; per-provider health check.
+- Trend fit & loopability: scoring bo sung cho trend sound/hashtag/format va ending mo de replay; khuyen nghi neu thieu.
+- Golden set: 20 prompt goc (action/horror/comedy/UGC/romance) regression hang tuan; check hook relevance, payoff, pacing, UI responsive.
+- Telemetry: log variation chon, so lan regen, latency/cost theo provider; dashboard SLO + fallback rate.
+
+14. Schema .env.local (de xuat)
+- PROVIDER_PRIORITY="openai,groq,openrouter,sdxl_local,tts_elevenlabs,tts_free" (thu tu fallback; co the bo bot)
+- USE_FREE_ONLY=false (true -> bo qua provider tinh phi, dung groq/openrouter free/tts free neu co)
+- COST_POLICY="quality_first" (cac gia tri: quality_first | cost_saver | speed_first)
+- OPENAI_API_KEY=xxxxx
+- OPENAI_BASE_URL=https://api.openai.com/v1 (co the doi sang cong OpenRouter neu dung route openai)
+- OPENAI_MODEL_TEXT=gpt-4o
+- OPENAI_MODEL_IMAGE=dall-e-3
+- GROQ_API_KEY=xxxxx
+- GROQ_MODEL_TEXT=llama3-70b-8192 (hoac mixtral-8x7b)
+- OPENROUTER_API_KEY=xxxxx
+- OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+- OPENROUTER_MODEL_TEXT=meta-llama/llama-3-70b-instruct
+- OPENROUTER_MODEL_IMAGE=stability-ai/sdxl
+- ANTHROPIC_API_KEY=xxxxx (optional)
+- SDXL_LOCAL_URL=http://localhost:5000/generate (neu co local/replicate)
+- TTS_ELEVENLABS_KEY=xxxxx
+- TTS_ELEVENLABS_VOICE=default_voice_id
+- TTS_FREE_PROVIDER=gptspeech (hoac fakeyou/khac)
+- TTS_FREE_URL=https://api.free-tts.example.com
+- TIMEOUT_MS=120000
+- HOOK_RELEVANCE_MIN=0.95
+- PAYOFF_REQUIRED=true
+- LENGTH_DEFAULT=60
+- LENGTH_ALLOWED="15,20,30,60"
+- REVEAL_WINDOWS="15:6-9,20:8-12,30:12-18,60:20-25"
+- TELEMETRY_ENDPOINT=https://telemetry.example.com/ingest (neu co)

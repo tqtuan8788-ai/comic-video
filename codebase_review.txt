@@ -1,0 +1,49 @@
+Codebase Review - ComicVideoAI
+
+1. Pipeline orchestration
+- `App.tsx:60` hosts the master React component that tracks the multi-step state machine, provider preferences, supervisor toggles, and whether the workflow should auto-run after each step. It also persists lightweight pipeline snapshots to `sessionStorage` for crash recovery (`App.tsx:118`, `App.tsx:182`) and keeps daily quota counters for both image and TTS calls with logging hooks (`App.tsx:378`).
+- Viral heuristics are embedded in `applyViralScoreOptimizations`, which automatically trims durations, rewrites hooks, injects CTA lines, and boosts relatability before any assets are rendered (`App.tsx:225`). The stricter `enforceViralChecklist` double-checks pacing, hook length, and CTA coverage right before running generators so problematic scenes are patched or flagged (`App.tsx:427`).
+- The pipeline advances through explicit handlers: `handleInputSubmit` guards unsafe text, normalizes the draft, and invokes the analysis stage (`App.tsx:537`); `handleCharactersNext` breaks content into scene shells using the selected pacing rules (`App.tsx:591`); `handleGenerateStoryboard` fills each scene with visual beats, voiceover, and viral scoring feedback (`App.tsx:645`); `handleGeneration` drives the long-running asset creation loop with rate-limit aware throttling, quota tracking, and per-scene status updates (`App.tsx:919`).
+
+2. Input and story understanding
+- `components/InputModule.tsx:16` presents the initial interface to paste or generate a draft, toggle auto scene-counting, and configure rewrite allowances; it funnels the text back into the orchestrator through `onNext`.
+- Before any model call, `checkContentSafety` scans the user text against a guardrail blocklist so problematic payloads never hit external APIs (`services/guardrails.ts:1`).
+- `normalizeInput` cleans the prose and extracts metadata while retrying on transient API errors (`services/geminiService.ts:47`), and `analyzeStory` maps the content into hooks, characters, and plot points tailored for TikTok pacing (`services/geminiService.ts:73`).
+- `components/AnalysisModule.tsx:12` visualizes the normalized theme, hook shortlist, and detected characters so the producer can accept or tweak the findings before continuing; `components/CharacterSetupModule.tsx:13` then lets the user assign or persist per-character FaceID references that will steer downstream image prompts.
+
+3. Scene and storyboard authoring
+- `breakdownScenes` enforces the target TikTok duration cap, tags each beat as HOOK/BUILD/REVEAL/ENDING, and scales durations to stay under the 3-minute limit before inflating the view layer with storyboard placeholders (`services/geminiService.ts:145`).
+- `generateStoryboardAndScript` acts like a directing pass: it produces detailed shot plans, on-screen hook text, and voiceover copy while respecting the supplied story world context and characters (`services/geminiService.ts:224`). The follow-up `polishSceneScript` keeps meaning intact but trims each line to ≤24 Vietnamese words and forces CTA injection on ending shots when required (`services/geminiService.ts:302`).
+- `components/StoryboardModule.tsx:12` renders the resulting beat sheet—including shot tags, headlines, sound cues, and dialogue—and lets producers reopen the editor if they want to regenerate specific beats.
+- `components/SceneEditor.tsx:13` exposes per-scene editing controls so a producer can rewrite summaries, regenerate/upload assets, or adjust durations; it always clears stale audio/image references when the underlying text changes.
+
+4. Asset generation pipeline
+- `generateComicImage` stitches together provider selection, style prompts, reference faces, and portrait-orientation safeguards, falling back between SDXL and Gemini image services while retrying transient failures (`services/geminiService.ts:372`).
+- `generatePlayableAudio` similarly abstracts TTS providers (Gemini TTS, ElevenLabs, generic HTTP endpoints), converts PCM payloads into WAV, and clearly surfaces quota errors so the caller can decide whether to skip TTS (`services/geminiService.ts:685`).
+- `handleGeneration` batches scene jobs, enforces the viral checklist again, throttles calls by 3 seconds, records quota usage, and updates each scene’s status/image/audio URLs in-place so the UI can monitor long jobs (`App.tsx:919`).
+- Manual fixes reuse the same generation primitives: `regenerateSceneImage`/`regenerateSceneAudio` call back into the shared services while `replaceSceneImage`/`replaceSceneAudio` allow direct uploads for exceptions (`services/manualEdit.ts:9`).
+- `components/VideoPreviewModule.tsx:14` renders generated frames onto a 1080x1920 canvas, overlays karaoke subtitles/headlines, synchronizes per-scene audio, and even records a full WebM preview via `startRendering` for export without leaving the browser (`components/VideoPreviewModule.tsx:397`).
+
+5. Viral optimization and QA
+- Viral scoring originates from `calculateViralScore`, which grades hooks, pacing, emotional resonance, meme/shareability factors, audio quality, trend fit, and loopability to output a weighted 0–10 KPI aligned with the PRD (`services/viralScoring.ts:37`). `calculatePacingHeatmap` bins scenes into timeline segments and labels each region as fast/ok/slow to visualize reveal placement (`services/viralScoring.ts:457`).
+- The UI surfaces the metrics via `ViralScoreDisplay` (`components/ViralScoreDisplay.tsx:10`), the segmented timeline via `PacingHeatmap` (`components/PacingHeatmap.tsx:11`), and an always-on rule-of-thumb validator via `ViralChecklist` which warns about long hooks, missing CTA, or >3s scenes (`components/ViralChecklist.tsx:11`).
+- During asset review, `ProducerPanel` lists missing artifacts or pacing violations and offers “Fix Images/Audio” batch buttons that re-run just the failed scenes (`components/ProducerPanel.tsx:12`). `ProcessTimeline` and `PipelineSupervisor` give a supervisory overview of each pipeline stage, showing pending/running/done/error states and whether the auto-run supervisor is currently enabled (`components/ProcessTimeline.tsx:19`, `components/PipelineSupervisor.tsx:21`).
+
+6. Automated improvement and story ideation
+- Producers can request an AI pass through `handleRequestAutoImprove`, which packages scoring context and the current storyboard to `autoImproveScenesWithAI`. That service defends against malformed JSON, extracts meaningful patch sets, and limits edits to the requested scene IDs while keeping durations between 1.5–3 seconds (`App.tsx:766`, `services/autoImprove.ts:140`).
+- `applyAutoImproveDraft` merges accepted patches back into the store, wipes stale audio/image references so assets regenerate, and reruns the viral score so the UX immediately reflects gains (`App.tsx:793`). Manual edits such as `handleSceneTextUpdate` or `handleRegenerateWithPrompt` perform the same cleanup before queuing regeneration jobs (`App.tsx:850`, `App.tsx:872`).
+- For ideation, `components/StoryGeneratorModule.tsx:45` exposes a “Hollywood-grade” prompt builder that calls `generateStoryWithCritique`. That service iteratively rewrites the story until a six-point critique passes the bar or max iterations are hit, guaranteeing every auto-generated script has conflict, depth, aha moments, and cinematic language baked in (`services/storyGenerator.ts:15`).
+
+7. Presets, providers, and settings
+- `components/PresetSelector.tsx:10` surfaces curated TikTok/legacy presets (art style, pacing, tone, hook style, archetype) that come from `services/presetConfig.ts:6`; calling `applyPreset` feeds those knobs back into the pipeline so downstream image/TTS defaults stay consistent even if the user never opens the settings drawer.
+- `components/SettingsPanel.tsx:32` is effectively a control tower: it lets producers toggle providers, edit API keys inline, reorder fallbacks, enforce “free-only” modes, set a cost policy, and pick the Gemini TTS voice stored via `getGeminiTtsVoice`/`setGeminiTtsVoice` (`services/ttsSettings.ts:1`).
+- All network calls run through `services/providerConfig.ts:1`, which builds a runtime config from environment variables, honors priority lists, enforces free-only constraints, and exposes `selectLLMProvider`/`selectImageProvider`/`selectTTSProvider` so calling code never embeds vendor-specific logic (`services/providerConfig.ts:159`, `services/providerConfig.ts:166`, `services/providerConfig.ts:172`). `services/aiClient.ts:234` then inspects that provider choice to either hit Gemini directly or adapt the prompt/schema to OpenAI-compatible or Anthropic APIs.
+
+8. Preview, export, and UX helpers
+- The preview area can switch between live playback and asset export. `VideoPreviewModule` handles the live canvas playback, while `components/ExportAssets.tsx:9` formats per-scene hooks/voiceovers into copyable text and JSON so editors can feed the script into external tools.
+- The navigation tabs include a `GuideTab` that documents each production stage and common troubleshooting advice, keeping research insights inside the app rather than a separate wiki (`components/GuideTab.tsx:4`).
+- When storytellers want to bypass manual drafts, the dedicated AI generator tab (wired into `StoryGeneratorModule`) gives them a one-click flow from topic to script, after which they can drop into the standard pipeline without rewriting anything in Word or Docs.
+
+9. Safety guardrails and data definitions
+- Shared types are centralized in `types.ts:1`, ensuring every component/service references the same `SceneFull`, `StoryboardElement`, `ViralScore`, etc. That keeps serialization and persistence safe when the app stores partial scenes mid-pipeline.
+- Content moderation stays proactive thanks to `checkContentSafety`, which short-circuits calls when any blocklisted keyword is present and surfaces the offending token so users know why their run was rejected (`services/guardrails.ts:1`).

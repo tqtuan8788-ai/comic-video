@@ -1,0 +1,367 @@
+{
+  "version": "1.0.0",
+  "createdAt": "2025-12-19T06:58:28.329Z",
+  "options": {
+    "aspectRatio": "9:16",
+    "clipDurationSec": 8,
+    "motionIntensity": "subtle",
+    "includeTimestampBeats": true,
+    "includeTransitions": false,
+    "includeAudioNotes": false,
+    "useIngredients": true,
+    "strictDirectorMode": true,
+    "safetyRewrite": true,
+    "anonymizeSubjects": true,
+    "useVisualPromptAnchor": true
+  },
+  "globalBible": {
+    "world": "Chủ đề/World: Không ai là bất khả xâm phạm: Sự trỗi dậy và sụp đổ của ông trùm mafia Nhân vật A..\nCột mốc cốt truyện: Nhân vật A củng cố quyền lực và danh tiếng 'Teflon Don' sau khi liên tiếp thắng 3 phiên tòa liên bang, khiến y trở thành kẻ bất khả xâm phạm trong mắt công chúng. | Cuộc đối đầu căng thẳng và kéo dài giữa Nhân vật A, ông trùm mafia tàn nhẫn và xảo quyệt, với Cục Điều tra Liên bang (FBI) kiên quyết đưa y ra trước vành móng ngựa. | Dù được mệnh danh là 'Teflon Don' và tưởng chừng không thể bị kết tội, Gotti cuối cùng bị kết án chung thân vào năm 1992 nhờ chiến dịch nghe lén tinh vi và quy mô lớn của FBI, phơi bày toàn bộ tội ác của y. | Nhân vật A vươn lên trở thành trùm gia đình tội phạm Gambino, nổi tiếng với vẻ ngoài bóng bẩy và sự tàn bạo..\nHook intent: Gặp gỡ 'Teflon Don' - ông trùm mafia khét tiếng nhất nước Mỹ, người tưởng chừng không thể bị chạm tới. Điều gì đã khiến y sụp đổ? | Từ phong cách lịch lãm Hollywood đến cái chết trong tù: Hành trình đầy kịch tính của Nhân vật A, ông trùm Gambino..\nContinuity lock: giữ cùng thời điểm trong ngày, thời tiết, palette, và đạo cụ chính giữa các clip trừ khi kịch bản yêu cầu thay đổi.",
+    "characters": "- Nhân vật A (Ông trùm mafia khét tiếng): Ông trùm cuối cùng của giới xã hội đen mang phong cách lịch lãm Hollywood, được mệnh danh là \"Teflon Don\" nhờ tài thoát án siêu hạng, một gã sát thủ máu lạnh sẵn sàng làm mọi thứ để đạt được mục đích.. Lock: giữ nguyên khuôn mặt theo ảnh tham chiếu (nếu có), giữ nguyên tóc/outfit/đặc điểm nhận dạng xuyên suốt, không đổi tuổi/giới tính/ethnicity ngoài ý đồ kịch bản.",
+    "cinematography": "Tỉ lệ khung hình: 9:16. Thời lượng clip: ~8s.\nPhong cách hình ảnh: Chinese Ink Wash (Sumi-e); ink wash; brush texture; chuyển động nhẹ, thơ, ít rung; giữ giấy/ink grain.\nQuy tắc camera: nêu shot size sớm; tách rõ subject motion vs camera motion; ưu tiên composition có chiều sâu (foreground/background).\nCamera motion mặc định: locked-off hoặc dolly-in rất nhẹ, ổn định, không rung vô ý.\nSubject motion mặc định: cử động nhỏ, tự nhiên: ánh mắt, hơi thở, tay chạm đạo cụ, vải áo lay nhẹ.\nQuy tắc dựng/continuity: giữ trục nhìn 180°; nếu đổi góc đối diện hãy ghi rõ \"reverse angle\"; tránh đảo trái-phải vô cớ.",
+    "negatives": "không subtitle, không caption, không chữ, không speech bubble; không watermark UI, không logo, không brand names; không biến dạng mặt/da, không đổi giới tính/tuổi, không đổi outfit/tóc; không thêm nhân vật lạ, không thêm đạo cụ lạ không có trong cảnh; không glitch, không flicker, không jump cut vô lý, không camera drift; không tay thừa/khuyết, không ngón tay dị dạng"
+  },
+  "clips": [
+    {
+      "clipId": "scene-1",
+      "type": "scene",
+      "sceneIds": [
+        1
+      ],
+      "title": "Scene 1 • HOOK",
+      "recommendedInputs": [
+        {
+          "kind": "scene_image",
+          "sceneId": 1
+        },
+        {
+          "kind": "character_reference",
+          "name": "Nhân vật A"
+        }
+      ],
+      "prompt": "Cinematography: Cận trung (medium close-up), tập trung vào phần thân trên của John Gotti, từ ngực trở lên, để làm nổi bật phong cách ăn mặc và biểu cảm khuôn mặt., Góc máy hơi thấp (low angle), nhìn lên John Gotti để nhấn mạnh quyền lực và vị thế của ông trùm.. Camera motion: Camera thực hiện một cú đẩy chậm (slow push-in) và gần như không thể nhận ra, từ từ tiến lại gần John Gotti, tập trung vào biểu cảm và phong thái của ông, tạo cảm giác hồi hộp và thu hút người xem vào thế giới của nhân vật.. Composition: rule-of-thirds, depth-of-field rõ, foreground/background tách lớp. Aspect 9:16. Subject: Nhân vật A (giữ nhất quán khuôn mặt/outfit theo ảnh tham chiếu; không dùng tên người thật). Scene anchor (match the still image): A medium close-up shot of Nhân vật A, impeccably dressed in a tailored pinstripe suit, silk tie, and pocket square. He stands tall, exuding confidence and a hint of menace, with a slightly smug expression. The camera is at a low angle, slowly pushing in on him. Dramatic, high-contrast chiaroscuro lighting highlights his sharp features and expensive attire, casting deep shadows. In the blurred background, hints of a dimly lit, opulent 1980s New York restaurant or a rain-slicked urban street with classic cars are visible. The atmosphere is tense, powerful,. Action: Nhân vật A đứng hiên ngang, toát ra khí chất quyền lực và sự tự tin, ánh mắt sắc lạnh nhưng đầy kiêu hãnh.. Micro-actions: ánh mắt, tay chạm đạo cụ, nhịp thở tự nhiên. Context: Bối cảnh: Nền mờ ảo của một nhà hàng sang trọng, cổ điển hoặc một con phố đô thị ẩm ướt, lấp lánh ánh đèn đêm, gợi lên không khí của thế giới ngầm New York thập niên 80.. Ánh sáng: Ánh sáng kịch tính, tương phản cao (chiaroscuro), một nguồn sáng chính mạnh mẽ từ bên cạnh hoặc phía trên, tạo bóng đổ sâu, làm nổi bật đường nét khuôn mặt sắc sảo và bộ vest được cắt may hoàn hảo của Gotti. Ánh sáng vàng ấm của đèn đường hoặc đèn nội thất làm tăng vẻ bí ẩn và quyền lực.. Style & ambiance: Chinese Ink Wash (Sumi-e); ink wash; brush texture; chuyển động nhẹ, thơ, ít rung; giữ giấy/ink grain. Không render chữ lên khung hình; chỉ kể chuyện bằng hình ảnh và hành động. Motion channels: Subject motion = cử động nhỏ, tự nhiên: ánh mắt, hơi thở, tay chạm đạo cụ, vải áo lay nhẹ. Camera motion = locked-off hoặc dolly-in rất nhẹ, ổn định, không rung vô ý. Timestamp beats: [00:00-00:02] Nhân vật A, trùm [00:02-00:04] mafia khét tiếng nước [00:04-00:06] Mỹ, là người cuối [00:06-00:08] cùng mang phong cách lịch lãm Hollywood. [00:07-00:08] Giữ 0.5-1s cuối clip ổn định (end-pose) để nối clip sau.",
+      "negativePrompt": "không subtitle, không caption, không chữ, không speech bubble; không watermark UI, không logo, không brand names; không biến dạng mặt/da, không đổi giới tính/tuổi, không đổi outfit/tóc; không thêm nhân vật lạ, không thêm đạo cụ lạ không có trong cảnh; không glitch, không flicker, không jump cut vô lý, không camera drift; không tay thừa/khuyết, không ngón tay dị dạng",
+      "notes": [
+        "Trong Flow/Veo: dùng ảnh scene làm input (image-to-video).",
+        "Không yêu cầu model render chữ; chữ/voiceover nên dựng ngoài (CapCut/Premiere/Resolve).",
+        "Nếu bị drift, tăng “ingredients”: thêm ảnh tham chiếu nhân vật/bối cảnh và lặp lại Character Bible."
+      ],
+      "lint": []
+    },
+    {
+      "clipId": "scene-2",
+      "type": "scene",
+      "sceneIds": [
+        2
+      ],
+      "title": "Scene 2 • BUILD",
+      "recommendedInputs": [
+        {
+          "kind": "scene_image",
+          "sceneId": 2
+        },
+        {
+          "kind": "character_reference",
+          "name": "Nhân vật A"
+        }
+      ],
+      "prompt": "Cinematography: Toàn cảnh rộng, sau đó chuyển dần sang trung cảnh cận khi camera đẩy vào., Góc máy thấp, nhìn lên Gotti, nhấn mạnh sự thống trị và uy quyền của ông ta.. Camera motion: Camera từ từ đẩy vào (dolly zoom) tập trung vào khuôn mặt Gotti, truyền tải sự gia tăng quyền lực của ông ta.. Composition: rule-of-thirds, depth-of-field rõ, foreground/background tách lớp. Aspect 9:16. Subject: Nhân vật A (giữ nhất quán khuôn mặt/outfit theo ảnh tham chiếu; không dùng tên người thật). Scene anchor (match the still image): Một cảnh quay điện ảnh, góc thấp, nhìn lên Nhân vật A trong bộ vest lịch lãm thập niên 80, đứng uy nghi trong văn phòng sang trọng với vách gỗ tối màu. Ánh sáng chiaroscuro tạo bóng đổ sâu, nhấn nhá khuôn mặt tự tin, quyền lực của Gotti. Phía sau là cửa sổ nhìn ra khung cảnh New York về đêm. Camera từ từ đẩy vào khuôn mặt ông ta, tạo cảm giác quyền lực đang lên. Phong cách hình ảnh gợi nhớ phim 'Bố già' hoặc 'Scarface'.. Action: Gotti đứng sừng sững, ánh mắt quét qua căn phòng, biểu lộ quyền lực tuyệt đối.. Micro-actions: ánh mắt, tay chạm đạo cụ, nhịp thở tự nhiên. Context: Bối cảnh: Văn phòng sang trọng nhưng cổ điển thập niên 80, với vách gỗ tối màu, rèm cửa nặng trịch và một chiếc bàn làm việc lớn, đồ sộ. Qua cửa sổ là khung cảnh thành phố New York về đêm, lấp lánh ánh đèn nhưng ẩn chứa vẻ khắc nghiệt.. Ánh sáng: Ánh sáng chiaroscuro, tương phản cao. Một nguồn sáng chính từ một phía, tạo ra những bóng đổ sâu. Ánh sáng u ám, kịch tính, gợi cảm giác quyền lực và nguy hiểm.. Style & ambiance: Chinese Ink Wash (Sumi-e); ink wash; brush texture; chuyển động nhẹ, thơ, ít rung; giữ giấy/ink grain. Không render chữ lên khung hình; chỉ kể chuyện bằng hình ảnh và hành động. Motion channels: Subject motion = cử động nhỏ, tự nhiên: ánh mắt, hơi thở, tay chạm đạo cụ, vải áo lay nhẹ. Camera motion = locked-off hoặc dolly-in rất nhẹ, ổn định, không rung vô ý. Timestamp beats: [00:00-00:02] Giữa thập niên 80, Nhân [00:02-00:04] vật A chính thức nắm [00:04-00:06] quyền, trở thành ông trùm [00:06-00:08] khét tiếng của gia đình tội phạm Gambino. [00:07-00:08] Giữ 0.5-1s cuối clip ổn định (end-pose) để nối clip sau.",
+      "negativePrompt": "không subtitle, không caption, không chữ, không speech bubble; không watermark UI, không logo, không brand names; không biến dạng mặt/da, không đổi giới tính/tuổi, không đổi outfit/tóc; không thêm nhân vật lạ, không thêm đạo cụ lạ không có trong cảnh; không glitch, không flicker, không jump cut vô lý, không camera drift; không tay thừa/khuyết, không ngón tay dị dạng",
+      "notes": [
+        "Trong Flow/Veo: dùng ảnh scene làm input (image-to-video).",
+        "Không yêu cầu model render chữ; chữ/voiceover nên dựng ngoài (CapCut/Premiere/Resolve).",
+        "Nếu bị drift, tăng “ingredients”: thêm ảnh tham chiếu nhân vật/bối cảnh và lặp lại Character Bible."
+      ],
+      "lint": []
+    },
+    {
+      "clipId": "scene-3",
+      "type": "scene",
+      "sceneIds": [
+        3
+      ],
+      "title": "Scene 3 • BUILD",
+      "recommendedInputs": [
+        {
+          "kind": "scene_image",
+          "sceneId": 3
+        },
+        {
+          "kind": "character_reference",
+          "name": "Nhân vật A"
+        }
+      ],
+      "prompt": "Cinematography: Cận trung (Medium Shot) để tập trung vào biểu cảm và dáng đi tự tin của Gotti., Góc máy thấp (low angle), nhìn lên Gotti, làm nổi bật sự tự tin và quyền lực của y.. Camera motion: Camera di chuyển lùi nhẹ (dolly out) hoặc pan theo Gotti khi y bước đi, giữ y ở trung tâm khung hình.. Composition: rule-of-thirds, depth-of-field rõ, foreground/background tách lớp. Aspect 9:16. Subject: Nhân vật A (giữ nhất quán khuôn mặt/outfit theo ảnh tham chiếu; không dùng tên người thật). Scene anchor (match the still image): Nhân vật A, mặc vest lịch lãm kiểu thập niên 80, bước ra từ tòa án liên bang New York. Góc máy thấp nhìn lên, Gotti ngẩng cao đầu, vẻ mặt tự mãn, đôi môi hơi nhếch cười. Đèn flash máy ảnh chớp liên tục từ đám đông phóng viên và vệ sĩ xung quanh. Bậc thang đá của tòa án cổ kính làm nền. Camera dolly out nhẹ theo bước chân của Gotti. Ánh sáng ban ngày gay gắt và kịch tính. Hiển thị on-screen text: 'Teflon Don: Kẻ. Action: Nhân vật A bước ra khỏi tòa án với vẻ mặt tự mãn, tự tin, bất cần, giữa rừng ống kính phóng viên và vệ sĩ.. Micro-actions: ánh mắt, tay chạm đạo cụ, nhịp thở tự nhiên. Context: Bối cảnh: Bậc thang đá cổ kính của một tòa án liên bang ở New York, với đám đông phóng viên và vệ sĩ vây kín.. Ánh sáng: Ánh sáng ban ngày gay gắt, kết hợp với đèn flash máy ảnh chớp liên tục, tạo cảm giác hỗn loạn và kịch tính.. Style & ambiance: Chinese Ink Wash (Sumi-e); ink wash; brush texture; chuyển động nhẹ, thơ, ít rung; giữ giấy/ink grain. Không render chữ lên khung hình; chỉ kể chuyện bằng hình ảnh và hành động. Motion channels: Subject motion = cử động nhỏ, tự nhiên: ánh mắt, hơi thở, tay chạm đạo cụ, vải áo lay nhẹ. Camera motion = locked-off hoặc dolly-in rất nhẹ, ổn định, không rung vô ý. Timestamp beats: [00:00-00:02] Giới chức Mỹ từng [00:02-00:04] gọi Gotti là 'Teflon [00:04-00:06] Don', bởi mọi cáo [00:06-00:08] buộc đều trượt khỏi ông ta. [00:07-00:08] Giữ 0.5-1s cuối clip ổn định (end-pose) để nối clip sau.",
+      "negativePrompt": "không subtitle, không caption, không chữ, không speech bubble; không watermark UI, không logo, không brand names; không biến dạng mặt/da, không đổi giới tính/tuổi, không đổi outfit/tóc; không thêm nhân vật lạ, không thêm đạo cụ lạ không có trong cảnh; không glitch, không flicker, không jump cut vô lý, không camera drift; không tay thừa/khuyết, không ngón tay dị dạng",
+      "notes": [
+        "Trong Flow/Veo: dùng ảnh scene làm input (image-to-video).",
+        "Không yêu cầu model render chữ; chữ/voiceover nên dựng ngoài (CapCut/Premiere/Resolve).",
+        "Nếu bị drift, tăng “ingredients”: thêm ảnh tham chiếu nhân vật/bối cảnh và lặp lại Character Bible."
+      ],
+      "lint": []
+    },
+    {
+      "clipId": "scene-4",
+      "type": "scene",
+      "sceneIds": [
+        4
+      ],
+      "title": "Scene 4 • BUILD",
+      "recommendedInputs": [
+        {
+          "kind": "scene_image",
+          "sceneId": 4
+        },
+        {
+          "kind": "character_reference",
+          "name": "Nhân vật A"
+        }
+      ],
+      "prompt": "Cinematography: Cận trung (medium close-up), Góc máy thấp (low angle), hơi nghiêng (Dutch tilt) để tăng cảm giác quyền lực và bất ổn.. Camera motion: Camera từ từ đẩy vào (push-in) hoặc zoom chậm rãi vào khuôn mặt Gotti khi hắn quay lại, kết thúc ở cận trung (medium close-up).. Composition: rule-of-thirds, depth-of-field rõ, foreground/background tách lớp. Aspect 9:16. Subject: Nhân vật A (giữ nhất quán khuôn mặt/outfit theo ảnh tham chiếu; không dùng tên người thật). Scene anchor (match the still image): A low-angle, slightly Dutch-tilted medium close-up shot of Nhân vật A in his dimly lit, opulent office. Gotti, stern and determined, turns slowly to face the camera. Dramatic chiaroscuro lighting emphasizes deep shadows on his face, highlighting his ruthless expression. A blurred, rainy New York City skyline is visible through a large window in the background. The atmosphere is tense and powerful.. Action: Nhân vật A đứng trong văn phòng sang trọng, nhìn ra ngoài cửa sổ thành phố mờ ảo. Hắn từ từ quay lại, ánh mắt lạnh lùng, đầy quyết đoán nhìn thẳng vào. Micro-actions: ánh mắt, tay chạm đạo cụ, nhịp thở tự nhiên. Context: Bối cảnh: Văn phòng riêng của Gotti, sang trọng nhưng tối tăm, với đồ nội thất gỗ tối màu và da. Phía sau là cửa sổ lớn nhìn ra đường chân trời thành phố New York mờ ảo trong đêm mưa.. Ánh sáng: Chiếu sáng chiaroscuro (sáng tối tương phản mạnh). Ánh sáng chính từ một bên, tạo bóng sâu trên một nửa khuôn mặt Gotti, nhấn mạnh sự tàn nhẫn và bí ẩn. Ánh sáng viền nhẹ từ phía sau, tạo hình bóng mạnh mẽ của hắn trước nền thành phố.. Style & ambiance: Chinese Ink Wash (Sumi-e); ink wash; brush texture; chuyển động nhẹ, thơ, ít rung; giữ giấy/ink grain. Không render chữ lên khung hình; chỉ kể chuyện bằng hình ảnh và hành động. Motion channels: Subject motion = cử động nhỏ, tự nhiên: ánh mắt, hơi thở, tay chạm đạo cụ, vải áo lay nhẹ. Camera motion = locked-off hoặc dolly-in rất nhẹ, ổn định, không rung vô ý. Timestamp beats: [00:00-00:02] Gotti, một sát thủ [00:02-00:04] máu lạnh, sẵn sàng [00:04-00:06] làm mọi việc để [00:06-00:08] đạt được điều mình muốn. [00:07-00:08] Giữ 0.5-1s cuối clip ổn định (end-pose) để nối clip sau.",
+      "negativePrompt": "không subtitle, không caption, không chữ, không speech bubble; không watermark UI, không logo, không brand names; không biến dạng mặt/da, không đổi giới tính/tuổi, không đổi outfit/tóc; không thêm nhân vật lạ, không thêm đạo cụ lạ không có trong cảnh; không glitch, không flicker, không jump cut vô lý, không camera drift; không tay thừa/khuyết, không ngón tay dị dạng",
+      "notes": [
+        "Trong Flow/Veo: dùng ảnh scene làm input (image-to-video).",
+        "Không yêu cầu model render chữ; chữ/voiceover nên dựng ngoài (CapCut/Premiere/Resolve).",
+        "Nếu bị drift, tăng “ingredients”: thêm ảnh tham chiếu nhân vật/bối cảnh và lặp lại Character Bible."
+      ],
+      "lint": []
+    },
+    {
+      "clipId": "scene-5",
+      "type": "scene",
+      "sceneIds": [
+        5
+      ],
+      "title": "Scene 5 • BUILD",
+      "recommendedInputs": [
+        {
+          "kind": "scene_image",
+          "sceneId": 5
+        },
+        {
+          "kind": "character_reference",
+          "name": "Nhân vật A"
+        }
+      ],
+      "prompt": "Cinematography: Cận trung, tập trung vào khuôn mặt Gotti và song sắt chắn trước mặt., Ngang tầm mắt, hơi thấp để nhấn mạnh sự khắc nghiệt của song sắt.. Camera motion: Camera đẩy nhẹ nhàng, gần như không thể nhận ra, tiến vào khuôn mặt Gotti.. Composition: rule-of-thirds, depth-of-field rõ, foreground/background tách lớp. Aspect 9:16. Subject: Nhân vật A (giữ nhất quán khuôn mặt/outfit theo ảnh tham chiếu; không dùng tên người thật). Scene anchor (match the still image): Medium close-up shot of a young Nhân vật A (late 30s-early 40s, 1969 era fashion, simple prison uniform), standing in a stark, desolate prison cell. His face is stoic, contemplative, with a hint of defiance, as he lightly grips heavy iron bars in the foreground. Harsh, high-contrast lighting from a single, unseen high window casts deep shadows, emphasizing the cold, grey concrete walls. The camera slowly pushes in on Gotti's face, framed by the bars. Gritty, cinematic, Zhang Yimou style.. Action: Nhân vật A đứng trong buồng giam lạnh lẽo, tay nhẹ nhàng nắm lấy song sắt.. Micro-actions: ánh mắt, tay chạm đạo cụ, nhịp thở tự nhiên. Context: Bối cảnh: Tường bê tông xám xịt, trần thấp, không gian chật hẹp của buồng giam.. Ánh sáng: Ánh sáng khắc nghiệt, tương phản cao. Một luồng sáng đơn lẻ từ cửa sổ cao không nhìn thấy chiếu rọi một phần khuôn mặt Gotti và song sắt, tạo ra bóng đổ sâu.. Style & ambiance: Chinese Ink Wash (Sumi-e); ink wash; brush texture; chuyển động nhẹ, thơ, ít rung; giữ giấy/ink grain. Không render chữ lên khung hình; chỉ kể chuyện bằng hình ảnh và hành động. Motion channels: Subject motion = cử động nhỏ, tự nhiên: ánh mắt, hơi thở, tay chạm đạo cụ, vải áo lay nhẹ. Camera motion = locked-off hoặc dolly-in rất nhẹ, ổn định, không rung vô ý. Timestamp beats: [00:00-00:02] Dù từng bị bắt vì trộm cắp [00:02-00:04] cuối thập niên 50, phải đến 1969, [00:04-00:06] Gotti mới thực sự vào tù 3 [00:06-00:08] năm vì âm mưu cướp máy bay. [00:07-00:08] Giữ 0.5-1s cuối clip ổn định (end-pose) để nối clip sau.",
+      "negativePrompt": "không subtitle, không caption, không chữ, không speech bubble; không watermark UI, không logo, không brand names; không biến dạng mặt/da, không đổi giới tính/tuổi, không đổi outfit/tóc; không thêm nhân vật lạ, không thêm đạo cụ lạ không có trong cảnh; không glitch, không flicker, không jump cut vô lý, không camera drift; không tay thừa/khuyết, không ngón tay dị dạng",
+      "notes": [
+        "Trong Flow/Veo: dùng ảnh scene làm input (image-to-video).",
+        "Không yêu cầu model render chữ; chữ/voiceover nên dựng ngoài (CapCut/Premiere/Resolve).",
+        "Nếu bị drift, tăng “ingredients”: thêm ảnh tham chiếu nhân vật/bối cảnh và lặp lại Character Bible."
+      ],
+      "lint": []
+    },
+    {
+      "clipId": "scene-6",
+      "type": "scene",
+      "sceneIds": [
+        6
+      ],
+      "title": "Scene 6 • BUILD",
+      "recommendedInputs": [
+        {
+          "kind": "scene_image",
+          "sceneId": 6
+        },
+        {
+          "kind": "character_reference",
+          "name": "Nhân vật A"
+        }
+      ],
+      "prompt": "Cinematography: Medium Close-up, focusing intensely on John Gotti's face and upper body to capture his emotional shift., Low angle, emphasizing Gotti's imposing presence and power, even in a moment of personal tragedy.. Camera motion: A slow, subtle push-in on Gotti's face, holding on his changing expression as grief gives way to ruthless determination.. Composition: rule-of-thirds, depth-of-field rõ, foreground/background tách lớp. Aspect 9:16. Subject: Nhân vật A (giữ nhất quán khuôn mặt/outfit theo ảnh tham chiếu; không dùng tên người thật). Scene anchor (match the still image): A medium close-up shot of Nhân vật A in a dimly lit, stark urban interior. He is initially grief-stricken, then his expression hardens to cold fury and unwavering resolve. The camera subtly pushes in on his face. Chiaroscuro lighting emphasizes his contours, creating an ominous, foreboding mood. The shot is taken from a low angle to emphasize his imposing presence. On-screen text: 'Bi kịch cá nhân và sự trả thù tàn khốc?'. Action: Nhân vật A, initially grief-stricken, transitions to a cold, determined expression, subtly signaling an order to his men. His face hardens, revealing his ruthless resolve.. Micro-actions: ánh mắt, tay chạm đạo cụ, nhịp thở tự nhiên. Context: Bối cảnh: A dimly lit, stark urban interior, reminiscent of a backroom in a social club or a somber, unadorned office. The setting is gritty, reflecting the harsh realities of his world.. Ánh sáng: Chiaroscuro lighting, with strong, dramatic shadows accentuating Gotti's facial contours. A single, harsh light source from above or the side creates an ominous, foreboding mood, highlighting the conflict within him.. Style & ambiance: Chinese Ink Wash (Sumi-e); ink wash; brush texture; chuyển động nhẹ, thơ, ít rung; giữ giấy/ink grain. Không render chữ lên khung hình; chỉ kể chuyện bằng hình ảnh và hành động. Motion channels: Subject motion = cử động nhỏ, tự nhiên: ánh mắt, hơi thở, tay chạm đạo cụ, vải áo lay nhẹ. Camera motion = locked-off hoặc dolly-in rất nhẹ, ổn định, không rung vô ý. Timestamp beats: [00:00-00:02] Năm 1980, con trai Gotti [00:02-00:04] chết vì tai nạn, và [00:04-00:06] kẻ gây tai nạn bị [00:06-00:08] đàn em y thủ tiêu ngay lập tức. [00:07-00:08] Giữ 0.5-1s cuối clip ổn định (end-pose) để nối clip sau.",
+      "negativePrompt": "không subtitle, không caption, không chữ, không speech bubble; không watermark UI, không logo, không brand names; không biến dạng mặt/da, không đổi giới tính/tuổi, không đổi outfit/tóc; không thêm nhân vật lạ, không thêm đạo cụ lạ không có trong cảnh; không glitch, không flicker, không jump cut vô lý, không camera drift; không tay thừa/khuyết, không ngón tay dị dạng",
+      "notes": [
+        "Trong Flow/Veo: dùng ảnh scene làm input (image-to-video).",
+        "Không yêu cầu model render chữ; chữ/voiceover nên dựng ngoài (CapCut/Premiere/Resolve).",
+        "Nếu bị drift, tăng “ingredients”: thêm ảnh tham chiếu nhân vật/bối cảnh và lặp lại Character Bible."
+      ],
+      "lint": [
+        {
+          "level": "info",
+          "code": "temporal_connectors",
+          "message": "Tránh “then/after that” trong clip độc lập; nên dùng timestamp beats hoặc mô tả tuyến tính.",
+          "sceneIds": [
+            6
+          ],
+          "clipId": "scene-6"
+        }
+      ]
+    },
+    {
+      "clipId": "scene-7",
+      "type": "scene",
+      "sceneIds": [
+        7
+      ],
+      "title": "Scene 7 • BUILD",
+      "recommendedInputs": [
+        {
+          "kind": "scene_image",
+          "sceneId": 7
+        },
+        {
+          "kind": "character_reference",
+          "name": "Nhân vật A"
+        }
+      ],
+      "prompt": "Cinematography: Medium close-up, focusing on John Gotti's face and upper body at the gambling table, capturing his raw emotion and the immediate environment of his reckless actions., Medium close-up, slightly low angle to emphasize his slumped posture and the weight of his grief, with a subtle Dutch tilt to convey disorientation.. Camera motion: A slow, almost imperceptible push-in on Gotti's face, combined with a subtle, unsettling camera sway, mirroring his internal turmoil and loss of control. The movement is deliberate, not frantic.. Composition: rule-of-thirds, depth-of-field rõ, foreground/background tách lớp. Aspect 9:16. Subject: Nhân vật A (giữ nhất quán khuôn mặt/outfit theo ảnh tham chiếu; không dùng tên người thật). Scene anchor (match the still image): A medium close-up shot of Nhân vật A, mid-40s, looking disheveled in a once-pristine but now slightly rumpled suit, slumped at a dimly lit, opulent gambling table. His face is etched with profound despair and a reckless detachment, eyes unfocused and distant. He holds a hand of cards loosely or aggressively slams chips onto the green felt. The background is a blur of dark wood and scattered gambling paraphernalia, emphasizing his isolation. Harsh chiaroscuro lighting from an unseen overhead source casts dramatic shadows, highlighting his tormented expression. A subtle, unsettling. Action: Nhân vật A, visibly distraught and disheveled, is slumped at a high-stakes gambling table, aggressively slamming chips or staring blankly at his cards. His usual meticulous composure is completely gone, replaced by a. Micro-actions: ánh mắt, tay chạm đạo cụ, nhịp thở tự nhiên. Context: Bối cảnh: A dimly lit, opulent, and smoke-filled backroom gambling den. Dark mahogany wood paneling, green felt tables, scattered poker chips, and half-empty whiskey glasses are visible, but blurred to keep focus on Gotti.. Ánh sáng: Dramatic chiaroscuro lighting. A single, harsh overhead lamp casts a strong, isolated pool of light on Gotti and the immediate table area, leaving the rest of the room in deep, oppressive shadows. This highlights his tormented expression and internal struggle.. Style & ambiance: Chinese Ink Wash (Sumi-e); ink wash; brush texture; chuyển động nhẹ, thơ, ít rung; giữ giấy/ink grain. Không render chữ lên khung hình; chỉ kể chuyện bằng hình ảnh và hành động. Motion channels: Subject motion = cử động nhỏ, tự nhiên: ánh mắt, hơi thở, tay chạm đạo cụ, vải áo lay nhẹ. Camera motion = locked-off hoặc dolly-in rất nhẹ, ổn định, không rung vô ý. Timestamp beats: [00:00-00:02] Sau cái chết của [00:02-00:04] con trai, Gotti chìm [00:04-00:06] vào cờ bạc, trở [00:06-00:08] nên liều lĩnh và bất cần hơn. [00:07-00:08] Giữ 0.5-1s cuối clip ổn định (end-pose) để nối clip sau.",
+      "negativePrompt": "không subtitle, không caption, không chữ, không speech bubble; không watermark UI, không logo, không brand names; không biến dạng mặt/da, không đổi giới tính/tuổi, không đổi outfit/tóc; không thêm nhân vật lạ, không thêm đạo cụ lạ không có trong cảnh; không glitch, không flicker, không jump cut vô lý, không camera drift; không tay thừa/khuyết, không ngón tay dị dạng",
+      "notes": [
+        "Trong Flow/Veo: dùng ảnh scene làm input (image-to-video).",
+        "Không yêu cầu model render chữ; chữ/voiceover nên dựng ngoài (CapCut/Premiere/Resolve).",
+        "Nếu bị drift, tăng “ingredients”: thêm ảnh tham chiếu nhân vật/bối cảnh và lặp lại Character Bible."
+      ],
+      "lint": []
+    },
+    {
+      "clipId": "scene-8",
+      "type": "scene",
+      "sceneIds": [
+        8
+      ],
+      "title": "Scene 8 • REVEAL",
+      "recommendedInputs": [
+        {
+          "kind": "scene_image",
+          "sceneId": 8
+        },
+        {
+          "kind": "character_reference",
+          "name": "Nhân vật A"
+        }
+      ],
+      "prompt": "Cinematography: Medium shot, chuyển sang close-up khuôn mặt Gotti khi y nhìn thẳng vào ống kính., Góc máy thấp (low angle) nhấn mạnh sự uy quyền và vị thế của Gotti.. Camera motion: Camera di chuyển chậm rãi theo Gotti khi y bước đi, hoặc zoom nhẹ vào khuôn mặt đầy tự tin của y, sau đó dừng lại khi Gotti nhìn thẳng vào ống kính.. Composition: rule-of-thirds, depth-of-field rõ, foreground/background tách lớp. Aspect 9:16. Subject: Nhân vật A (giữ nhất quán khuôn mặt/outfit theo ảnh tham chiếu; không dùng tên người thật). Scene anchor (match the still image): Một cảnh quay điện ảnh góc thấp, tập trung vào Nhân vật A lịch lãm trong bộ vest, bước ra từ cổng tòa án liên bang cổ kính. Ánh sáng mạnh tạo bóng đổ sắc nét, làm nổi bật vẻ mặt tự mãn và thách thức của Gotti. Camera zoom chậm vào khuôn mặt y khi Gotti nhìn thẳng vào ống kính, trên màn hình hiện lên dòng chữ 'Kẻ bất khả xâm phạm?'. Bối cảnh tòa án mờ ảo phía sau, gợi cảm giác về một chiến thắng pháp. Action: Gotti bước ra khỏi tòa án với vẻ mặt tự mãn, ánh mắt đầy tự tin và thách thức.. Micro-actions: ánh mắt, tay chạm đạo cụ, nhịp thở tự nhiên. Context: Bối cảnh: Cổng tòa án liên bang với kiến trúc cổ kính, có thể có đám đông phóng viên mờ ảo phía sau, tạo cảm giác hỗn loạn nhưng Gotti vẫn là tâm điểm.. Ánh sáng: Ánh sáng mạnh từ trên cao, tạo bóng đổ sắc nét trên khuôn mặt Gotti, làm nổi bật các đường nét góc cạnh, tạo vẻ bí ẩn và quyền lực. Có thể có một chút ánh sáng vàng ấm để tăng vẻ 'Hollywood' của Gotti.. Style & ambiance: Chinese Ink Wash (Sumi-e); ink wash; brush texture; chuyển động nhẹ, thơ, ít rung; giữ giấy/ink grain. Không render chữ lên khung hình; chỉ kể chuyện bằng hình ảnh và hành động. Motion channels: Subject motion = cử động nhỏ, tự nhiên: ánh mắt, hơi thở, tay chạm đạo cụ, vải áo lay nhẹ. Camera motion = locked-off hoặc dolly-in rất nhẹ, ổn định, không rung vô ý. Timestamp beats: [00:00-00:02] Cuối thập niên 80, Gotti [00:02-00:04] liên tiếp thắng 3 phiên [00:04-00:06] tòa liên bang, củng cố [00:06-00:08] vị thế bất khả xâm phạm. [00:07-00:08] Giữ 0.5-1s cuối clip ổn định (end-pose) để nối clip sau.",
+      "negativePrompt": "không subtitle, không caption, không chữ, không speech bubble; không watermark UI, không logo, không brand names; không biến dạng mặt/da, không đổi giới tính/tuổi, không đổi outfit/tóc; không thêm nhân vật lạ, không thêm đạo cụ lạ không có trong cảnh; không glitch, không flicker, không jump cut vô lý, không camera drift; không tay thừa/khuyết, không ngón tay dị dạng",
+      "notes": [
+        "Trong Flow/Veo: dùng ảnh scene làm input (image-to-video).",
+        "Không yêu cầu model render chữ; chữ/voiceover nên dựng ngoài (CapCut/Premiere/Resolve).",
+        "Nếu bị drift, tăng “ingredients”: thêm ảnh tham chiếu nhân vật/bối cảnh và lặp lại Character Bible."
+      ],
+      "lint": []
+    },
+    {
+      "clipId": "scene-9",
+      "type": "scene",
+      "sceneIds": [
+        9
+      ],
+      "title": "Scene 9 • BUILD",
+      "recommendedInputs": [
+        {
+          "kind": "scene_image",
+          "sceneId": 9
+        },
+        {
+          "kind": "character_reference",
+          "name": "Nhân vật A"
+        }
+      ],
+      "prompt": "Cinematography: Medium Close-up, Thấp nhẹ, nhìn lên Gotti.. Camera motion: Camera dolly theo Gotti khi anh ta bước đi.. Composition: rule-of-thirds, depth-of-field rõ, foreground/background tách lớp. Aspect 9:16. Subject: Nhân vật A (giữ nhất quán khuôn mặt/outfit theo ảnh tham chiếu; không dùng tên người thật). Scene anchor (match the still image): Medium close-up shot of Nhân vật A, impeccably dressed in a sharp suit, walking confidently through a throng of paparazzi and reporters outside a grand courthouse or upscale restaurant. Low angle emphasizes his imposing presence. Bright, harsh lighting from camera flashes illuminates his face and suit, creating dramatic highlights and shadows. Gotti maintains a calm, slightly arrogant expression, perhaps a subtle smirk. The camera slowly dollies forward, tracking his movement. The background is a blur of flashing lights and indistinct faces, emphasizing the media frenzy around him. Gritty urban atmosphere.. Action: Gotti điềm nhiên bước đi giữa đám đông phóng viên, ánh đèn flash chớp liên tục.. Micro-actions: ánh mắt, tay chạm đạo cụ, nhịp thở tự nhiên. Context: Bối cảnh: Lối vào tòa án hoặc nhà hàng sang trọng, với đám đông phóng viên và vệ sĩ.. Ánh sáng: Sáng chói từ đèn flash, tạo hiệu ứng tương phản mạnh.. Style & ambiance: Chinese Ink Wash (Sumi-e); ink wash; brush texture; chuyển động nhẹ, thơ, ít rung; giữ giấy/ink grain. Không render chữ lên khung hình; chỉ kể chuyện bằng hình ảnh và hành động. Motion channels: Subject motion = cử động nhỏ, tự nhiên: ánh mắt, hơi thở, tay chạm đạo cụ, vải áo lay nhẹ. Camera motion = locked-off hoặc dolly-in rất nhẹ, ổn định, không rung vô ý. Timestamp beats: [00:00-00:02] Từ đó, Gotti thu hút [00:02-00:04] dư luận, không chỉ quyền [00:04-00:06] lực mà còn vẻ ngoài [00:06-00:08] bóng bẩy, đầy học thức. [00:07-00:08] Giữ 0.5-1s cuối clip ổn định (end-pose) để nối clip sau.",
+      "negativePrompt": "không subtitle, không caption, không chữ, không speech bubble; không watermark UI, không logo, không brand names; không biến dạng mặt/da, không đổi giới tính/tuổi, không đổi outfit/tóc; không thêm nhân vật lạ, không thêm đạo cụ lạ không có trong cảnh; không glitch, không flicker, không jump cut vô lý, không camera drift; không tay thừa/khuyết, không ngón tay dị dạng",
+      "notes": [
+        "Trong Flow/Veo: dùng ảnh scene làm input (image-to-video).",
+        "Không yêu cầu model render chữ; chữ/voiceover nên dựng ngoài (CapCut/Premiere/Resolve).",
+        "Nếu bị drift, tăng “ingredients”: thêm ảnh tham chiếu nhân vật/bối cảnh và lặp lại Character Bible."
+      ],
+      "lint": []
+    },
+    {
+      "clipId": "scene-10",
+      "type": "scene",
+      "sceneIds": [
+        10
+      ],
+      "title": "Scene 10 • REVEAL",
+      "recommendedInputs": [
+        {
+          "kind": "scene_image",
+          "sceneId": 10
+        },
+        {
+          "kind": "character_reference",
+          "name": "Nhân vật A"
+        }
+      ],
+      "prompt": "Cinematography: Trung cảnh hoặc cận cảnh bàn tay đặc vụ đang gài rệp, sau đó mở rộng ra không gian xung quanh., Góc thấp (low angle), cận cảnh hoặc trung cảnh.. Camera motion: Camera pan chậm rãi từ cận cảnh bàn tay đặc vụ đang gài thiết bị, sau đó mở rộng ra không gian xung quanh để lộ bối cảnh.. Composition: rule-of-thirds, depth-of-field rõ, foreground/background tách lớp. Aspect 9:16. Subject: Nhân vật B (giữ nhất quán khuôn mặt/outfit theo ảnh tham chiếu; không dùng tên người thật). Scene anchor (match the still image): A cinematic, gritty shot in a dimly lit, smoke-filled backroom of a classic 1980s New York Italian restaurant or a dimly lit social club. A shadowy figure, an FBI agent, is seen in a medium close-up, meticulously placing a tiny, old-fashioned listening device (a 'bug') under a heavy wooden table or behind a framed picture on the wall. The camera is slightly low angle, slowly panning to reveal the worn, opulent interior, hinting at Gotti's frequented places. High contrast, low-key lighting with strong shadows, emphasizing secrecy and tension. The atmosphere. Action: Một Nhân vật B bí mật gài thiết bị nghe lén (rệp) vào một vị trí kín đáo trong một căn phòng tối.. Micro-actions: ánh mắt, tay chạm đạo cụ, nhịp thở tự nhiên. Context: Bối cảnh: Hậu trường nhà hàng Ý cổ điển hoặc câu lạc bộ xã hội ở New York thập niên 80, tối tăm, nhiều khói, với nội thất gỗ nặng và những bức tranh cũ.. Ánh sáng: Ánh sáng yếu (low-key), tương phản cao, nhiều bóng đổ sâu, tạo cảm giác bí mật và nguy hiểm.. Style & ambiance: Chinese Ink Wash (Sumi-e); ink wash; brush texture; chuyển động nhẹ, thơ, ít rung; giữ giấy/ink grain. Không render chữ lên khung hình; chỉ kể chuyện bằng hình ảnh và hành động. Motion channels: Subject motion = cử động nhỏ, tự nhiên: ánh mắt, hơi thở, tay chạm đạo cụ, vải áo lay nhẹ. Camera motion = locked-off hoặc dolly-in rất nhẹ, ổn định, không rung vô ý. Timestamp beats: [00:00-00:02] Tuy nhiên, với quyết tâm đưa [00:02-00:04] tên trùm vào đúng quỹ đạo, [00:04-00:06] FBI đã thực hiện chiến dịch [00:06-00:08] lớn, gài 'rệp' vào mọi nơi y lui tới. [00:07-00:08] Giữ 0.5-1s cuối clip ổn định (end-pose) để nối clip sau.",
+      "negativePrompt": "không subtitle, không caption, không chữ, không speech bubble; không watermark UI, không logo, không brand names; không biến dạng mặt/da, không đổi giới tính/tuổi, không đổi outfit/tóc; không thêm nhân vật lạ, không thêm đạo cụ lạ không có trong cảnh; không glitch, không flicker, không jump cut vô lý, không camera drift; không tay thừa/khuyết, không ngón tay dị dạng",
+      "notes": [
+        "Trong Flow/Veo: dùng ảnh scene làm input (image-to-video).",
+        "Không yêu cầu model render chữ; chữ/voiceover nên dựng ngoài (CapCut/Premiere/Resolve).",
+        "Nếu bị drift, tăng “ingredients”: thêm ảnh tham chiếu nhân vật/bối cảnh và lặp lại Character Bible."
+      ],
+      "lint": []
+    },
+    {
+      "clipId": "scene-11",
+      "type": "scene",
+      "sceneIds": [
+        11
+      ],
+      "title": "Scene 11 • REVEAL",
+      "recommendedInputs": [
+        {
+          "kind": "scene_image",
+          "sceneId": 11
+        },
+        {
+          "kind": "character_reference",
+          "name": "Nhân vật A"
+        }
+      ],
+      "prompt": "Cinematography: Cận trung (MCU) vào John Gotti., Góc máy hơi cao, nhìn xuống Gotti, nhấn mạnh sự mất mát quyền lực và vị thế của y.. Camera motion: Camera từ từ đẩy vào (dolly zoom) khuôn mặt Gotti, tăng cường sự tập trung vào phản ứng của y.. Composition: rule-of-thirds, depth-of-field rõ, foreground/background tách lớp. Aspect 9:16. Subject: Nhân vật A (giữ nhất quán khuôn mặt/outfit theo ảnh tham chiếu; không dùng tên người thật). Scene anchor (match the still image): Một cảnh cận trung kịch tính của Nhân vật A trong phòng xử án tối tăm, ánh sáng khắc nghiệt chiếu từ trên cao tạo bóng đổ sâu. Gotti đứng thẳng nhưng vai hơi chùng, ánh mắt lộ vẻ sốc và cam chịu ẩn sau vẻ mặt cố giữ sự bất cần. Camera từ từ đẩy vào khuôn mặt y. Hậu cảnh là những bóng hình mờ ảo của tòa án. Không có UI hay bong bóng thoại.. Action: Nhân vật A đứng thẳng, ánh mắt nhìn xa xăm, một thoáng biểu cảm sốc và cam chịu lướt qua khuôn mặt khi bản án được tuyên. Dù cố giữ vẻ bất cần,. Micro-actions: ánh mắt, tay chạm đạo cụ, nhịp thở tự nhiên. Context: Bối cảnh: Phòng xử án tối tăm, lạnh lẽo, với những bóng hình mờ ảo của luật sư và quan chức tòa án ở hậu cảnh, ngoài tiêu cự.. Ánh sáng: Ánh sáng trên cao khắc nghiệt, lạnh lẽo, tạo ra những bóng đổ sâu dưới mắt và xương quai hàm của Gotti, tượng trưng cho sự phán xét không khoan nhượng của công lý.. Style & ambiance: Chinese Ink Wash (Sumi-e); ink wash; brush texture; chuyển động nhẹ, thơ, ít rung; giữ giấy/ink grain. Không render chữ lên khung hình; chỉ kể chuyện bằng hình ảnh và hành động. Motion channels: Subject motion = cử động nhỏ, tự nhiên: ánh mắt, hơi thở, tay chạm đạo cụ, vải áo lay nhẹ. Camera motion = locked-off hoặc dolly-in rất nhẹ, ổn định, không rung vô ý. Timestamp beats: [00:00-00:02] Năm 1992, Gotti bị kết [00:02-00:04] án chung thân vì 13 [00:04-00:06] tội danh, bao gồm các [00:06-00:08] vụ thanh toán nội bộ gia đình Gambino. [00:07-00:08] Giữ 0.5-1s cuối clip ổn định (end-pose) để nối clip sau.",
+      "negativePrompt": "không subtitle, không caption, không chữ, không speech bubble; không watermark UI, không logo, không brand names; không biến dạng mặt/da, không đổi giới tính/tuổi, không đổi outfit/tóc; không thêm nhân vật lạ, không thêm đạo cụ lạ không có trong cảnh; không glitch, không flicker, không jump cut vô lý, không camera drift; không tay thừa/khuyết, không ngón tay dị dạng",
+      "notes": [
+        "Trong Flow/Veo: dùng ảnh scene làm input (image-to-video).",
+        "Không yêu cầu model render chữ; chữ/voiceover nên dựng ngoài (CapCut/Premiere/Resolve).",
+        "Nếu bị drift, tăng “ingredients”: thêm ảnh tham chiếu nhân vật/bối cảnh và lặp lại Character Bible."
+      ],
+      "lint": []
+    },
+    {
+      "clipId": "scene-12",
+      "type": "scene",
+      "sceneIds": [
+        12
+      ],
+      "title": "Scene 12 • ENDING",
+      "recommendedInputs": [
+        {
+          "kind": "scene_image",
+          "sceneId": 12
+        },
+        {
+          "kind": "character_reference",
+          "name": "Nhân vật A"
+        }
+      ],
+      "prompt": "Cinematography: Cận cảnh trung bình (Medium Close-up), Góc quay cao, nhìn xuống Gotti. Camera motion: Camera từ từ đẩy nhẹ vào khuôn mặt Gotti. Composition: rule-of-thirds, depth-of-field rõ, foreground/background tách lớp. Aspect 9:16. Subject: Nhân vật A (giữ nhất quán khuôn mặt/outfit theo ảnh tham chiếu; không dùng tên người thật). Scene anchor (match the still image): Medium close-up shot of Nhân vật A, now frail and gaunt, lying weakly on a cot in a stark, concrete prison cell. High angle emphasizes his diminished state. Dim, cold institutional lighting casts long shadows, highlighting his defeated expression. Slow, subtle push-in on his face. Background shows plain prison walls and a small, barred window. Somber, bleak atmosphere.. Action: Gotti nằm yếu ớt trên giường bệnh trong tù. Micro-actions: ánh mắt, tay chạm đạo cụ, nhịp thở tự nhiên. Context: Bối cảnh: Phòng giam nhà tù lạnh lẽo, tường bê tông xám xịt, có song sắt cửa sổ mờ ảo. Ánh sáng: Ánh sáng tù túng, lạnh lẽo, chiếu qua song sắt tạo bóng đổ, làm nổi bật sự tiều tụy của Gotti. Style & ambiance: Chinese Ink Wash (Sumi-e); ink wash; brush texture; chuyển động nhẹ, thơ, ít rung; giữ giấy/ink grain. Không render chữ lên khung hình; chỉ kể chuyện bằng hình ảnh và hành động. Motion channels: Subject motion = cử động nhỏ, tự nhiên: ánh mắt, hơi thở, tay chạm đạo cụ, vải áo lay nhẹ. Camera motion = locked-off hoặc dolly-in rất nhẹ, ổn định, không rung vô ý. Timestamp beats: [00:00-00:02] Sau 10 năm thụ án, Nhân vật A, ông trùm [00:02-00:04] từng bất khả xâm phạm, cuối cùng cũng gục ngã [00:04-00:06] trong tù vì ung thư vòm họng. Like , comment [00:06-00:08] và Subscribe để theo dõi những video thú vị hơn nhé ! [00:07-00:08] Giữ 0.5-1s cuối clip ổn định (end-pose) để nối clip sau.",
+      "negativePrompt": "không subtitle, không caption, không chữ, không speech bubble; không watermark UI, không logo, không brand names; không biến dạng mặt/da, không đổi giới tính/tuổi, không đổi outfit/tóc; không thêm nhân vật lạ, không thêm đạo cụ lạ không có trong cảnh; không glitch, không flicker, không jump cut vô lý, không camera drift; không tay thừa/khuyết, không ngón tay dị dạng",
+      "notes": [
+        "Trong Flow/Veo: dùng ảnh scene làm input (image-to-video).",
+        "Không yêu cầu model render chữ; chữ/voiceover nên dựng ngoài (CapCut/Premiere/Resolve).",
+        "Nếu bị drift, tăng “ingredients”: thêm ảnh tham chiếu nhân vật/bối cảnh và lặp lại Character Bible."
+      ],
+      "lint": []
+    }
+  ],
+  "lint": [
+    {
+      "level": "info",
+      "code": "temporal_connectors",
+      "message": "Tránh “then/after that” trong clip độc lập; nên dùng timestamp beats hoặc mô tả tuyến tính.",
+      "sceneIds": [
+        6
+      ],
+      "clipId": "scene-6"
+    },
+    {
+      "level": "warn",
+      "code": "missing_scene_images",
+      "message": "Có 2 scene chưa có ảnh tĩnh (generated_image_url). Nếu muốn image-to-video đúng scene, hãy gen ảnh trước: 11, 12.",
+      "sceneIds": [
+        11,
+        12
+      ]
+    }
+  ]
+}

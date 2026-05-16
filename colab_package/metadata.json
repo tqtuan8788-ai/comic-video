@@ -1,0 +1,5 @@
+{
+  "name": "ComicVideoAI",
+  "description": "An automated pipeline to create philosophical comic videos from text inputs using Gemini AI.",
+  "requestFramePermissions": []
+}
