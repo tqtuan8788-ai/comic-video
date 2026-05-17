@@ -4,6 +4,7 @@ import { callLLM, getGeminiClient } from "./aiClient";
 import { ProviderConfig, selectImageProvider, selectTTSProvider } from "./providerConfig";
 import { getGeminiTtsVoice } from "./ttsSettings";
 import { generateOmniVoiceAudio, getOmniVoiceSettings } from "./omniVoice";
+import { isTextGroundedInScene } from "./assetBinding";
 import {
   DIRECTOR_SYSTEM_PROMPT,
   TIKTOK_OPTIMIZATION_PROMPT,
@@ -599,6 +600,10 @@ Return JSON matching the schema.`,
     if (!voiceover || voiceover.length < 5) {
       voiceover = scene.summary;
     }
+    if (!isTextGroundedInScene(voiceover, scene.summary)) {
+      console.warn(`[storyboard] Voiceover for scene ${scene.id} was not grounded; using scene summary.`);
+      voiceover = scene.summary;
+    }
 
     return {
       storyboard: (data as any).storyboard,
@@ -649,7 +654,10 @@ Return JSON with fields: voiceover, on_screen_text, needs_cta (true if CTA was i
     if (!responseText) return scene;
     try {
       const data = JSON.parse(cleanJson(responseText));
-      const polishedVoiceover = data.voiceover?.trim() || scene.voiceover_text;
+      const candidateVoiceover = data.voiceover?.trim() || scene.voiceover_text;
+      const polishedVoiceover = isTextGroundedInScene(candidateVoiceover, scene.summary)
+        ? candidateVoiceover
+        : scene.voiceover_text || scene.summary;
       const polishedHook = data.on_screen_text?.trim() || scene.storyboard?.on_screen_text || scene.summary;
       return {
         ...scene,
@@ -688,7 +696,7 @@ export const generateComicImage = async (
   const provider = selectImageProvider();
   return await retryOperation(async () => {
     const parts: any[] = [];
-    const { buildStyledPrompt } = await import('../prompts/artStyles');
+    const { buildStyledPrompt, getStyleConfig } = await import('../prompts/artStyles');
 
     // 1. Cinematic Director Prompt for Visual Consistency with Art Style
     const worldAnchor = worldContext?.trim()
@@ -702,6 +710,17 @@ export const generateComicImage = async (
 STYLE LOCK: One art style only (${artStyle}). No mixing realistic/anime/comic; match the selected style for every scene.
 CONTINUITY LOCK: Keep characters/faces/outfits consistent unless this scene asks for a change.
 NO GENRE DRIFT: Do not switch to fantasy/ancient/other worlds unless the prompt says so.`;
+
+    if (provider?.name === 'pollinations') {
+      const pollinationsPrompt = buildPollinationsPrompt(
+        prompt,
+        characters,
+        artStyle,
+        worldContext,
+        getStyleConfig(artStyle as any)
+      );
+      return await generatePollinationsImage(pollinationsPrompt, provider);
+    }
 
     const styledPrompt = buildStyledPrompt(
       `${DIRECTOR_SYSTEM_PROMPT}
@@ -738,10 +757,6 @@ ${QUALITY_CHECK_PROMPT}
 Before generating, verify style consistency, face consistency, and overall coherence.`,
       artStyle as any
     );
-
-    if (provider?.name === 'pollinations') {
-      return await generatePollinationsImage(styledPrompt, provider);
-    }
 
     if (provider?.name === 'sdxl_local') {
       const payload = {
@@ -915,6 +930,39 @@ const hashString = (value: string): number => {
     hash = Math.imul(hash, 16777619);
   }
   return Math.abs(hash >>> 0);
+};
+
+const compactPromptText = (value: string, maxChars: number): string => {
+  const normalized = (value || '').replace(/\s+/g, ' ').trim();
+  if (normalized.length <= maxChars) return normalized;
+  return normalized.slice(0, maxChars).replace(/\s+\S*$/, '').trim();
+};
+
+export const buildPollinationsPrompt = (
+  scenePrompt: string,
+  characters: Character[],
+  artStyle: string,
+  worldContext: string,
+  styleConfig: { name: string; positive: string; negative: string }
+): string => {
+  const characterText = characters
+    .map((char) => [char.name, char.role, char.description].filter(Boolean).join(': '))
+    .filter(Boolean)
+    .slice(0, 4)
+    .join('; ');
+
+  const prompt = [
+    `Vertical 9:16 cinematic comic panel. EXACT SCENE TO DEPICT: ${compactPromptText(scenePrompt, 850)}`,
+    worldContext ? `Story context for continuity: ${compactPromptText(worldContext, 360)}` : '',
+    characterText
+      ? `Use only these story characters when relevant: ${compactPromptText(characterText, 260)}`
+      : 'Do not add unrelated people; only include people explicitly required by the scene.',
+    `Art style: ${styleConfig.name}. ${compactPromptText(styleConfig.positive, 360)}`,
+    'Composition: scene-specific subject in the center/upper third, clear location, cinematic lighting, depth, dramatic mood, portrait framing.',
+    `Strict negative: ${styleConfig.negative}, unrelated young women, random fashion portrait, generic two-girl pose, unrelated modern room, unrelated beach/city, text, subtitles, UI, logo, watermark, speech bubbles.`
+  ].filter(Boolean).join('\n');
+
+  return compactPromptText(prompt, 1800);
 };
 
 const generatePollinationsImage = async (prompt: string, provider: ProviderConfig): Promise<string> => {

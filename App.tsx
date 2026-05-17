@@ -38,6 +38,7 @@ import { SettingsPanel } from './components/SettingsPanel'; // Removed duplicate
 import { calculateViralScore, calculatePacingHeatmap } from './services/viralScoring';
 import { autoImproveScenesWithAI, AutoImprovePatch } from './services/autoImprove';
 import { PresetConfig, getPresetById, getDefaultTikTokPreset, applyPreset } from './services/presetConfig';
+import { assetBindingKey, buildBoundSceneImagePrompt, getGroundedTtsText } from './services/assetBinding';
 import { STYLE_PROMPTS } from './prompts/artStyles';
 import { Loader2, Film, Sparkles, Edit3 } from 'lucide-react';
 
@@ -79,7 +80,7 @@ const App: React.FC = () => {
       apiKey: LOCAL_DEEPSEEK_API_KEY,
       baseUrl: readClientEnv('VITE_DEEPSEEK_BASE_URL') || readClientEnv('DEEPSEEK_BASE_URL') || 'https://api.deepseek.com',
       model: readClientEnv('VITE_DEEPSEEK_MODEL_TEXT') || readClientEnv('DEEPSEEK_MODEL_TEXT') || 'deepseek-chat',
-      priority: 1,
+      priority: 0,
       healthStatus: 'unknown'
     },
     {
@@ -89,7 +90,7 @@ const App: React.FC = () => {
       enabled: !!LOCAL_GEMINI_API_KEY,
       apiKey: LOCAL_GEMINI_API_KEY,
       model: 'gemini-2.5-flash',
-      priority: 0,
+      priority: 4,
       healthStatus: 'unknown'
     },
     { id: 'openai', name: 'OpenAI GPT-4o', type: 'llm', enabled: false, apiKey: readClientEnv('VITE_OPENAI_API_KEY') || readClientEnv('OPENAI_API_KEY'), model: 'gpt-4o', priority: 4, healthStatus: 'unknown' },
@@ -97,7 +98,7 @@ const App: React.FC = () => {
     { id: 'pollinations', name: 'Pollinations Flux', type: 'image', enabled: true, apiKey: '', baseUrl: readClientEnv('VITE_POLLINATIONS_IMAGE_URL') || readClientEnv('POLLINATIONS_IMAGE_URL') || 'https://image.pollinations.ai/prompt', model: readClientEnv('VITE_POLLINATIONS_MODEL_IMAGE') || readClientEnv('POLLINATIONS_MODEL_IMAGE') || 'flux', priority: 2, healthStatus: 'unknown' },
     { id: 'sdxl_local', name: 'SDXL Local/ComfyUI', type: 'image', enabled: false, apiKey: '', baseUrl: readClientEnv('VITE_SDXL_LOCAL_URL') || readClientEnv('SDXL_LOCAL_URL') || 'http://localhost:5000/generate', model: 'sdxl', priority: 9, healthStatus: 'unknown' },
     { id: 'tts_elevenlabs', name: 'ElevenLabs TTS', type: 'tts', enabled: false, apiKey: readClientEnv('VITE_TTS_ELEVENLABS_KEY') || readClientEnv('TTS_ELEVENLABS_KEY'), priority: 6, healthStatus: 'unknown' },
-    { id: 'tts_free', name: 'OmniVoice / Free TTS', type: 'tts', enabled: false, apiKey: readClientEnv('VITE_TTS_FREE_KEY') || readClientEnv('TTS_FREE_KEY'), baseUrl: readClientEnv('VITE_TTS_FREE_URL') || readClientEnv('TTS_FREE_URL') || '/api/omnivoice/tts', model: 'external', ttsVoice: readClientEnv('VITE_TTS_FREE_VOICE') || readClientEnv('TTS_FREE_VOICE') || 'default', priority: 3, healthStatus: 'unknown' },
+    { id: 'tts_free', name: 'OmniVoice / Free TTS', type: 'tts', enabled: true, apiKey: readClientEnv('VITE_TTS_FREE_KEY') || readClientEnv('TTS_FREE_KEY'), baseUrl: readClientEnv('VITE_TTS_FREE_URL') || readClientEnv('TTS_FREE_URL') || '/api/omnivoice/tts', model: 'external', ttsVoice: readClientEnv('VITE_TTS_FREE_VOICE') || readClientEnv('TTS_FREE_VOICE') || 'default', priority: 3, healthStatus: 'unknown' },
   ]);
   const [costPolicy, setCostPolicy] = useState<'quality_first' | 'cost_saver' | 'speed_first'>('quality_first');
   const [useFreeOnly, setUseFreeOnly] = useState(false);
@@ -205,6 +206,8 @@ const App: React.FC = () => {
           status: s.status,
           generated_image_url: safeImage,
           generated_audio_url: safeAudio,
+          generated_image_promptKey: s.generated_image_promptKey,
+          generated_audio_textKey: s.generated_audio_textKey,
         };
       }),
       desiredSceneCount: state.desiredSceneCount,
@@ -293,10 +296,9 @@ const App: React.FC = () => {
         ];
         const template = hookTemplates[hookScene.id % hookTemplates.length];
         hookScene.storyboard.on_screen_text = trimWords(template, 8);
-        if (!hookScene.voiceover_text.includes(template)) {
-          const suffix = template.endsWith('?') ? template : `${template}?`;
-          hookScene.voiceover_text = `${hookScene.voiceover_text} ${suffix}`.trim();
-        }
+        // Do not inject generic hook templates into the spoken TTS line.
+        // Voiceover must stay grounded to the actual scene content; generic questions
+        // belong on-screen only, otherwise OmniVoice may read unrelated text.
         hookScene.estimated_duration = Math.min(hookScene.estimated_duration, 2.5);
         changed = true;
         logChange('Tăng sức mạnh hook bằng câu hỏi kịch tính.');
@@ -1089,9 +1091,16 @@ const App: React.FC = () => {
         let audioUrl: string | undefined = existing.generated_audio_url;
         let nextAudioVoiceName: string | undefined = existing.generated_audio_voiceName;
         let nextAudioLanguageCode: string | undefined = existing.generated_audio_languageCode;
+        const boundImagePrompt = buildBoundSceneImagePrompt(scene);
+        const imagePromptKey = assetBindingKey(`${artStyle}|${globalVisualContext}|${boundImagePrompt}`);
+        const ttsText = getGroundedTtsText(scene, pushLog);
+        const audioTextKey = assetBindingKey(`${activeTtsVoiceName}|${activeTtsLanguageCode}|${ttsText}`);
 
         // Generate Image
-        const shouldGenerateImage = forceRegenerate || !existing.generated_image_url;
+        const shouldGenerateImage =
+          forceRegenerate ||
+          !existing.generated_image_url ||
+          existing.generated_image_promptKey !== imagePromptKey;
 
         const wantsTts = !skipTTS && !criticalError;
         const audioVoiceMismatch =
@@ -1100,7 +1109,8 @@ const App: React.FC = () => {
           ((existing.generated_audio_voiceName || '') !== activeTtsVoiceName ||
             (existing.generated_audio_languageCode || '') !== activeTtsLanguageCode);
 
-        const shouldGenerateAudio = wantsTts && (forceRegenerate || !existing.generated_audio_url || audioVoiceMismatch);
+        const audioTextMismatch = wantsTts && !!existing.generated_audio_url && existing.generated_audio_textKey !== audioTextKey;
+        const shouldGenerateAudio = wantsTts && (forceRegenerate || !existing.generated_audio_url || audioVoiceMismatch || audioTextMismatch);
 
         const willCallApi = shouldGenerateImage || shouldGenerateAudio;
         if (willCallApi && lastApiSceneAt) {
@@ -1112,7 +1122,7 @@ const App: React.FC = () => {
         if (shouldGenerateImage) {
           try {
             imageUrl = await generateComicImage(
-              scene.storyboard?.visual_prompt || scene.summary,
+              boundImagePrompt,
               generationCharacters,
               artStyle,
               globalVisualContext
@@ -1121,6 +1131,7 @@ const App: React.FC = () => {
             currentScenesConfig[idx] = {
               ...currentScenesConfig[idx],
               generated_image_url: imageUrl,
+              generated_image_promptKey: imagePromptKey,
               status: 'generating'
             };
             // Commit the image before TTS starts. OmniVoice on CPU can be slow, so the Storyboard
@@ -1142,7 +1153,7 @@ const App: React.FC = () => {
         if (shouldGenerateAudio) {
           let audioGenerated = false;
           try {
-            audioUrl = await generatePlayableAudio(scene.voiceover_text || scene.summary, {
+            audioUrl = await generatePlayableAudio(ttsText, {
               voiceName: activeTtsVoiceName,
               languageCode: activeTtsLanguageCode,
             });
@@ -1178,6 +1189,8 @@ const App: React.FC = () => {
           generated_audio_url: finalAudioUrl,
           generated_audio_voiceName: nextAudioVoiceName,
           generated_audio_languageCode: nextAudioLanguageCode,
+          generated_image_promptKey: finalImageUrl ? imagePromptKey : currentScenesConfig[idx].generated_image_promptKey,
+          generated_audio_textKey: finalAudioUrl ? audioTextKey : currentScenesConfig[idx].generated_audio_textKey,
           status: finalImageUrl ? 'done' : 'error'
         };
 

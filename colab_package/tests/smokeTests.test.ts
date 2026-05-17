@@ -6,6 +6,8 @@ import { describe, test, expect } from 'vitest';
 import { calculateViralScore, calculatePacingHeatmap } from '../services/viralScoring';
 import { getPresetById, getDefaultTikTokPreset, ALL_PRESETS } from '../services/presetConfig';
 import { SceneFull } from '../types';
+import { buildBoundSceneImagePrompt, getGroundedTtsText } from '../services/assetBinding';
+import { buildPollinationsPrompt } from '../services/geminiService';
 
 describe('Viral Scoring', () => {
     test('calculates viral score for basic scenes', () => {
@@ -170,5 +172,55 @@ describe('Core Flow Integration', () => {
 
         const segments = calculatePacingHeatmap(mockScenes);
         expect(segments).toBeDefined();
+    });
+});
+
+describe('Scene asset binding', () => {
+    const pyramidScene: SceneFull = {
+        id: 1,
+        type: 'HOOK',
+        summary: 'Một nhà khảo cổ phát hiện căn phòng bí mật bên dưới kim tự tháp Ai Cập.',
+        estimated_duration: 3,
+        voiceover_text: 'Hai cô gái bước vào quán cà phê hiện đại.',
+        storyboard: {
+            shot: 'Wide shot',
+            angle: 'Low angle',
+            movement: 'Slow push-in',
+            characters: [],
+            background: 'Bên trong kim tự tháp cổ, đá sa thạch và chữ tượng hình',
+            lighting: 'Ánh đuốc vàng, bóng tối sâu',
+            action: 'Nhà khảo cổ soi đuốc vào cánh cửa đá bí mật',
+            on_screen_text: 'Bí mật dưới kim tự tháp',
+            visual_prompt: 'Ancient Egyptian pyramid chamber, hidden stone door, torchlight, hieroglyphs'
+        },
+        status: 'pending'
+    };
+
+    test('binds image prompt to exact scene content before style text', () => {
+        const bound = buildBoundSceneImagePrompt(pyramidScene);
+        expect(bound).toContain('kim tự tháp');
+        expect(bound).toContain('căn phòng bí mật');
+        expect(bound).toContain('Forbidden');
+
+        const pollinationsPrompt = buildPollinationsPrompt(
+            bound,
+            [],
+            'comic_manhua',
+            'Chủ đề: bí mật kim tự tháp',
+            {
+                name: 'Comic',
+                positive: 'cinematic comic illustration',
+                negative: 'text, watermark'
+            }
+        );
+
+        expect(pollinationsPrompt.indexOf('EXACT SCENE')).toBeLessThan(pollinationsPrompt.indexOf('Art style'));
+        expect(pollinationsPrompt).toContain('kim tự tháp');
+        expect(pollinationsPrompt).toContain('unrelated young women');
+        expect(pollinationsPrompt.length).toBeLessThanOrEqual(1800);
+    });
+
+    test('falls back to scene summary when TTS voiceover is unrelated', () => {
+        expect(getGroundedTtsText(pyramidScene)).toBe(pyramidScene.summary);
     });
 });

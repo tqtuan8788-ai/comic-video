@@ -175,9 +175,12 @@ class Handler(BaseHTTPRequestHandler):
         try:
             body = self._read_body()
             if path == "/clone":
-                # The UI also sends reference audio in /tts JSON. This endpoint is
-                # kept for UX/profile setup and stores raw uploaded bytes only.
-                if body:
+                # The browser uploads multipart/form-data here for UX/profile setup,
+                # while real synthesis sends base64 reference audio inside /tts JSON.
+                # Do not store the raw multipart envelope as an audio file; that can
+                # corrupt later reference-clone requests and make TTS behave erratically.
+                content_type = self.headers.get("content-type", "").lower()
+                if body and "multipart/form-data" not in content_type:
                     ref_path = REFERENCE_DIR / "uploaded-reference.bin"
                     ref_path.write_bytes(body)
                     _last_reference_audio = ref_path

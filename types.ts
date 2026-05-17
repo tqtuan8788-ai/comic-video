@@ -56,6 +56,8 @@ export interface SceneFull extends Scene {
   generated_audio_url?: string;
   generated_audio_voiceName?: string;
   generated_audio_languageCode?: string;
+  generated_image_promptKey?: string;
+  generated_audio_textKey?: string;
   status: 'pending' | 'generating' | 'done' | 'error';
 }
 
