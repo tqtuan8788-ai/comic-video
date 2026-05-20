@@ -44,13 +44,27 @@ import { Loader2, Film, Sparkles, Edit3 } from 'lucide-react';
 
 const readClientEnv = (key: string): string => {
   const meta = (import.meta as any)?.env?.[key];
-  if (meta !== undefined) return meta;
-  if (typeof process !== 'undefined' && process.env?.[key]) return process.env[key] as string;
+  if (meta !== undefined && meta !== 'undefined' && meta !== 'null') return meta;
+  if (typeof process !== 'undefined' && process.env?.[key]) {
+    const value = process.env[key] as string;
+    return value === 'undefined' || value === 'null' ? '' : value;
+  }
   return '';
 };
 
 const LOCAL_GEMINI_API_KEY = readClientEnv('VITE_GEMINI_API_KEY') || readClientEnv('GEMINI_API_KEY');
 const LOCAL_DEEPSEEK_API_KEY = readClientEnv('VITE_DEEPSEEK_API_KEY') || readClientEnv('DEEPSEEK_API_KEY');
+const LOCAL_GEMINI_ENABLED = ['1', 'true', 'yes', 'on'].includes(
+  (readClientEnv('VITE_GEMINI_ENABLED') || readClientEnv('GEMINI_ENABLED')).trim().toLowerCase()
+);
+const LOCAL_CODEX_OPENAI_BASE_URL =
+  readClientEnv('VITE_CODEX_OPENAI_BASE_URL') ||
+  readClientEnv('CODEX_OPENAI_BASE_URL') ||
+  '/api/openai-codex/v1';
+const LOCAL_CODEX_IMAGE_GENERATE_URL =
+  readClientEnv('VITE_CODEX_IMAGE_GENERATE_URL') ||
+  readClientEnv('CODEX_IMAGE_GENERATE_URL') ||
+  '/api/codex-image/generate';
 
 const INITIAL_STATE: PipelineState = {
   currentStep: AppStep.INPUT,
@@ -73,6 +87,17 @@ const App: React.FC = () => {
 
   const [providers, setProviders] = useState<ProviderConfig[]>([
     {
+      id: 'openai_codex',
+      name: 'OpenAI Codex OAuth',
+      type: 'llm',
+      enabled: true,
+      apiKey: 'codex-oauth-placeholder',
+      baseUrl: LOCAL_CODEX_OPENAI_BASE_URL,
+      model: readClientEnv('VITE_CODEX_OPENAI_MODEL_TEXT') || readClientEnv('CODEX_OPENAI_MODEL_TEXT') || 'gpt-5.5',
+      priority: 0,
+      healthStatus: 'unknown'
+    },
+    {
       id: 'deepseek',
       name: 'DeepSeek',
       type: 'llm',
@@ -80,14 +105,14 @@ const App: React.FC = () => {
       apiKey: LOCAL_DEEPSEEK_API_KEY,
       baseUrl: readClientEnv('VITE_DEEPSEEK_BASE_URL') || readClientEnv('DEEPSEEK_BASE_URL') || 'https://api.deepseek.com',
       model: readClientEnv('VITE_DEEPSEEK_MODEL_TEXT') || readClientEnv('DEEPSEEK_MODEL_TEXT') || 'deepseek-chat',
-      priority: 0,
+      priority: 1,
       healthStatus: 'unknown'
     },
     {
       id: 'gemini',
       name: 'Google Gemini',
       type: 'llm',
-      enabled: !!LOCAL_GEMINI_API_KEY,
+      enabled: LOCAL_GEMINI_ENABLED && !!LOCAL_GEMINI_API_KEY,
       apiKey: LOCAL_GEMINI_API_KEY,
       model: 'gemini-2.5-flash',
       priority: 4,
@@ -95,10 +120,12 @@ const App: React.FC = () => {
     },
     { id: 'openai', name: 'OpenAI GPT-4o', type: 'llm', enabled: false, apiKey: readClientEnv('VITE_OPENAI_API_KEY') || readClientEnv('OPENAI_API_KEY'), model: 'gpt-4o', priority: 4, healthStatus: 'unknown' },
     { id: 'groq', name: 'Groq Llama 3', type: 'llm', enabled: false, apiKey: readClientEnv('VITE_GROQ_API_KEY') || readClientEnv('GROQ_API_KEY'), model: 'llama3-70b-8192', priority: 5, healthStatus: 'unknown' },
-    { id: 'pollinations', name: 'Pollinations Flux', type: 'image', enabled: true, apiKey: '', baseUrl: readClientEnv('VITE_POLLINATIONS_IMAGE_URL') || readClientEnv('POLLINATIONS_IMAGE_URL') || 'https://image.pollinations.ai/prompt', model: readClientEnv('VITE_POLLINATIONS_MODEL_IMAGE') || readClientEnv('POLLINATIONS_MODEL_IMAGE') || 'flux', priority: 2, healthStatus: 'unknown' },
+    { id: 'openai_codex_image', name: 'OpenAI Codex Image', type: 'image', enabled: true, apiKey: '', baseUrl: LOCAL_CODEX_IMAGE_GENERATE_URL, model: readClientEnv('VITE_CODEX_IMAGE_MODEL') || readClientEnv('CODEX_IMAGE_MODEL') || 'gpt-image-2', priority: 2, healthStatus: 'unknown' },
+    { id: 'pollinations', name: 'Pollinations Flux', type: 'image', enabled: true, apiKey: '', baseUrl: readClientEnv('VITE_POLLINATIONS_IMAGE_URL') || readClientEnv('POLLINATIONS_IMAGE_URL') || 'https://image.pollinations.ai/prompt', model: readClientEnv('VITE_POLLINATIONS_MODEL_IMAGE') || readClientEnv('POLLINATIONS_MODEL_IMAGE') || 'flux', priority: 3, healthStatus: 'unknown' },
     { id: 'sdxl_local', name: 'SDXL Local/ComfyUI', type: 'image', enabled: false, apiKey: '', baseUrl: readClientEnv('VITE_SDXL_LOCAL_URL') || readClientEnv('SDXL_LOCAL_URL') || 'http://localhost:5000/generate', model: 'sdxl', priority: 9, healthStatus: 'unknown' },
     { id: 'tts_elevenlabs', name: 'ElevenLabs TTS', type: 'tts', enabled: false, apiKey: readClientEnv('VITE_TTS_ELEVENLABS_KEY') || readClientEnv('TTS_ELEVENLABS_KEY'), priority: 6, healthStatus: 'unknown' },
-    { id: 'tts_free', name: 'OmniVoice / Free TTS', type: 'tts', enabled: true, apiKey: readClientEnv('VITE_TTS_FREE_KEY') || readClientEnv('TTS_FREE_KEY'), baseUrl: readClientEnv('VITE_TTS_FREE_URL') || readClientEnv('TTS_FREE_URL') || '/api/omnivoice/tts', model: 'external', ttsVoice: readClientEnv('VITE_TTS_FREE_VOICE') || readClientEnv('TTS_FREE_VOICE') || 'default', priority: 3, healthStatus: 'unknown' },
+    { id: 'tts_free', name: 'OpenAI Edge TTS', type: 'tts', enabled: true, apiKey: readClientEnv('VITE_TTS_FREE_KEY') || readClientEnv('TTS_FREE_KEY'), baseUrl: readClientEnv('VITE_TTS_FREE_URL') || readClientEnv('TTS_FREE_URL') || '/api/edge-tts/tts', model: 'tts-1', ttsVoice: readClientEnv('VITE_TTS_FREE_VOICE') || readClientEnv('TTS_FREE_VOICE') || 'vi-VN-HoaiMyNeural', priority: 3, healthStatus: 'unknown' },
+    { id: 'tts_omnivoice', name: 'OmniVoice Optional', type: 'tts', enabled: false, apiKey: readClientEnv('VITE_TTS_OMNIVOICE_KEY') || readClientEnv('TTS_OMNIVOICE_KEY'), baseUrl: readClientEnv('VITE_TTS_OMNIVOICE_URL') || readClientEnv('TTS_OMNIVOICE_URL') || '/api/omnivoice/tts', model: 'external', ttsVoice: readClientEnv('VITE_TTS_OMNIVOICE_VOICE') || readClientEnv('TTS_OMNIVOICE_VOICE') || 'default', priority: 8, healthStatus: 'unknown' },
   ]);
   const [costPolicy, setCostPolicy] = useState<'quality_first' | 'cost_saver' | 'speed_first'>('quality_first');
   const [useFreeOnly, setUseFreeOnly] = useState(false);
@@ -465,7 +492,11 @@ const App: React.FC = () => {
     const image = selectImageProvider();
     const tts = selectTTSProvider();
     pushLog(`[Provider] LLM: ${llm.name}${llm.modelText ? ` (${llm.modelText})` : ''}`);
-    pushLog(`[Provider] Image: ${image.name}${image.modelImage ? ` (${image.modelImage})` : ''}`);
+    pushLog(
+      image
+        ? `[Provider] Image: ${image.name}${image.modelImage ? ` (${image.modelImage})` : ''}`
+        : '[Provider] Image: no enabled image provider configured'
+    );
     pushLog(`[Provider] TTS: ${tts.name}${tts.ttsVoice ? ` (voice ${tts.ttsVoice})` : ''}`);
   }, [pushLog]);
 
@@ -1063,7 +1094,8 @@ const App: React.FC = () => {
     setGenerationProgress(0);
     const globalVisualContext = buildWorldContext(state.analysis, state.rawInput, { includeSource: false });
     const forceRegenerate = !Array.isArray(scenesParam) && scenesParam && typeof scenesParam === 'object' && 'id' in scenesParam;
-    const activeTtsVoiceName = getGeminiTtsVoice().trim();
+    const activeTtsProvider = selectTTSProvider();
+    const activeTtsVoiceName = (activeTtsProvider.ttsVoice || getGeminiTtsVoice()).trim();
     const activeTtsLanguageCode = 'vi-VN';
 
     for (let i = 0; i < targetScenes.length; i++) {

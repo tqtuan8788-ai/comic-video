@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 APP_PORT="${APP_PORT:-3000}"
+EDGE_TTS_PORT="${EDGE_TTS_PORT:-5050}"
 OMNIVOICE_PORT="${OMNIVOICE_PORT:-7861}"
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$PROJECT_DIR"
 
+export EDGE_TTS_HOST="${EDGE_TTS_HOST:-127.0.0.1}"
+export EDGE_TTS_PORT
+export EDGE_TTS_DEFAULT_VOICE="${EDGE_TTS_DEFAULT_VOICE:-vi-VN-HoaiMyNeural}"
+export EDGE_TTS_DEFAULT_SPEED="${EDGE_TTS_DEFAULT_SPEED:-1.0}"
 export OMNIVOICE_HOST="${OMNIVOICE_HOST:-127.0.0.1}"
 export OMNIVOICE_PORT
 export OMNIVOICE_DEVICE="${OMNIVOICE_DEVICE:-cuda}"
@@ -16,6 +21,9 @@ mkdir -p "$HF_HOME" "$HUGGINGFACE_HUB_CACHE"
 if [ ! -d node_modules ]; then
   npm ci --no-audit --no-fund
 fi
+
+nohup python3 scripts/openai_edge_tts_server.py > edge-tts.log 2>&1 &
+echo $! > edge-tts.pid
 
 if [ "${START_OMNIVOICE:-0}" = "1" ]; then
   nohup python3 scripts/omnivoice-api-server.py > omnivoice.log 2>&1 &

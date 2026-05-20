@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Settings, Zap, TrendingUp, DollarSign, Activity, CheckCircle, AlertCircle, XCircle, Volume2, RefreshCw, UploadCloud, Trash2 } from 'lucide-react';
+import {
+    checkEdgeTtsHealth,
+    DEFAULT_EDGE_TTS_SETTINGS,
+    EDGE_TTS_RECOMMENDED_VOICES,
+    EdgeTtsSettings,
+    EdgeTtsVoiceOption,
+    fetchEdgeTtsVoices,
+    generateEdgeTtsAudio,
+    getEdgeTtsSettings,
+    setEdgeTtsSettings,
+} from '../services/edgeTts';
 import { GEMINI_TTS_VOICE_DEFAULT, getGeminiTtsVoice, setGeminiTtsVoice } from '../services/ttsSettings';
 import { ProviderConfig } from '../services/providerConfig';
 import {
@@ -40,6 +51,13 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
 }) => {
     const [editingProvider, setEditingProvider] = useState<string | null>(null);
     const [tempApiKey, setTempApiKey] = useState('');
+    const [edgeSettings, setEdgeSettingsState] = useState<EdgeTtsSettings>(() => getEdgeTtsSettings());
+    const [edgeHealth, setEdgeHealth] = useState<{ ok: boolean; message: string; latencyMs?: number } | null>(null);
+    const [edgeVoices, setEdgeVoices] = useState<EdgeTtsVoiceOption[]>([]);
+    const [edgeTestText, setEdgeTestText] = useState('Xin chao, day la giong doc Edge TTS dang duoc dung mac dinh cho ComicVideoAI.');
+    const [edgeTestAudio, setEdgeTestAudio] = useState<string>('');
+    const [edgeBusy, setEdgeBusy] = useState<'health' | 'voices' | 'test' | null>(null);
+    const [edgeError, setEdgeError] = useState<string>('');
     const [omniSettings, setOmniSettingsState] = useState<OmniVoiceSettings>(() => getOmniVoiceSettings());
     const [omniHealth, setOmniHealth] = useState<{ ok: boolean; message: string; latencyMs?: number } | null>(null);
     const [omniVoices, setOmniVoices] = useState<OmniVoiceOption[]>([]);
@@ -99,10 +117,24 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
         onUpdateProviders(updated);
     };
 
+    const persistEdgeSettings = (next: EdgeTtsSettings) => {
+        setEdgeSettingsState(next);
+        setEdgeTtsSettings(next);
+        handleUpdateProviderField('tts_free', {
+            baseUrl: next.endpointUrl,
+            ttsVoice: next.voice,
+            model: next.model,
+        });
+    };
+
+    const patchEdgeSettings = (patch: Partial<EdgeTtsSettings>) => {
+        persistEdgeSettings({ ...edgeSettings, ...patch });
+    };
+
     const persistOmniSettings = (next: OmniVoiceSettings) => {
         setOmniSettingsState(next);
         setOmniVoiceSettings(next);
-        handleUpdateProviderField('tts_free', {
+        handleUpdateProviderField('tts_omnivoice', {
             baseUrl: next.endpointUrl,
             ttsVoice: next.voiceProfileId,
             model: `omnivoice:${next.emotion}`,
@@ -171,9 +203,17 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
         }
     }, [geminiVoice, geminiVoiceCustom]);
 
-    const omniProvider = ttsProviders.find((p) => p.id === 'tts_free' || p.name === 'tts_free') || {
+    const edgeProvider = ttsProviders.find((p) => p.id === 'tts_free' || p.name === 'tts_free') || {
         id: 'tts_free',
         name: 'tts_free',
+        type: 'tts' as const,
+        baseUrl: edgeSettings.endpointUrl,
+        ttsVoice: edgeSettings.voice,
+    };
+
+    const omniProvider = ttsProviders.find((p) => p.id === 'tts_omnivoice' || p.name === 'tts_omnivoice') || {
+        id: 'tts_omnivoice',
+        name: 'tts_omnivoice',
         type: 'tts' as const,
         baseUrl: omniSettings.endpointUrl,
         ttsVoice: omniSettings.voiceProfileId,
@@ -189,6 +229,35 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             setOmniHealth({ ok: false, message: error?.message || 'Health check failed' });
         } finally {
             setOmniBusy(null);
+        }
+    };
+
+    const runEdgeHealth = async () => {
+        setEdgeBusy('health');
+        setEdgeError('');
+        try {
+            const result = await checkEdgeTtsHealth(edgeSettings);
+            setEdgeHealth(result);
+        } catch (error: any) {
+            setEdgeHealth({ ok: false, message: error?.message || 'Health check failed' });
+        } finally {
+            setEdgeBusy(null);
+        }
+    };
+
+    const loadEdgeVoices = async () => {
+        setEdgeBusy('voices');
+        setEdgeError('');
+        try {
+            const voices = await fetchEdgeTtsVoices(edgeSettings);
+            setEdgeVoices(voices);
+            if (voices.length && !voices.some((v) => v.id === edgeSettings.voice)) {
+                patchEdgeSettings({ voice: voices[0].id });
+            }
+        } catch (error: any) {
+            setEdgeError(error?.message || 'Khong tai duoc danh sach Edge TTS voices.');
+        } finally {
+            setEdgeBusy(null);
         }
     };
 
@@ -269,6 +338,20 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             setOmniError(error?.message || 'Test voice thất bại.');
         } finally {
             setOmniBusy(null);
+        }
+    };
+
+    const testEdgeTts = async () => {
+        setEdgeBusy('test');
+        setEdgeError('');
+        setEdgeTestAudio('');
+        try {
+            const audio = await generateEdgeTtsAudio(edgeTestText, edgeProvider, edgeSettings);
+            setEdgeTestAudio(audio);
+        } catch (error: any) {
+            setEdgeError(error?.message || 'Test Edge TTS that bai.');
+        } finally {
+            setEdgeBusy(null);
         }
     };
 
@@ -482,16 +565,162 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             <div className="space-y-3">
                 <h4 className="text-sm font-semibold text-slate-300">TTS Providers</h4>
 
+                <div className="bg-slate-900/60 border border-cyan-700/40 rounded-lg p-4 space-y-4">
+                    <div className="flex items-start justify-between gap-3 flex-wrap">
+                        <div>
+                            <div className="font-semibold text-white flex items-center gap-2">
+                                <Volume2 className="w-4 h-4 text-cyan-300" />
+                                OpenAI Edge TTS Default
+                            </div>
+                            <div className="text-xs text-slate-400 max-w-2xl">
+                                Backend TTS nhe, tuong thich OpenAI `/v1/audio/speech`, phu hop may yeu va VPS nho. Day la TTS mac dinh moi.
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            {edgeHealth && (
+                                <span className={`px-2 py-1 rounded text-xs font-semibold border ${edgeHealth.ok ? 'bg-green-500/20 text-green-300 border-green-500/40' : 'bg-red-500/20 text-red-300 border-red-500/40'}`}>
+                                    {edgeHealth.ok ? 'Connected' : 'Down'}{edgeHealth.latencyMs ? ` • ${edgeHealth.latencyMs}ms` : ''}
+                                </span>
+                            )}
+                            <button
+                                onClick={runEdgeHealth}
+                                disabled={edgeBusy !== null}
+                                className="px-3 py-2 rounded bg-slate-700 text-slate-200 text-sm hover:bg-slate-600 disabled:opacity-50"
+                            >
+                                {edgeBusy === 'health' ? 'Checking...' : 'Health'}
+                            </button>
+                        </div>
+                    </div>
+
+                    {edgeHealth && (
+                        <div className={`text-xs rounded px-3 py-2 border ${edgeHealth.ok ? 'bg-green-500/10 text-green-200 border-green-500/30' : 'bg-red-500/10 text-red-200 border-red-500/30'}`}>
+                            {edgeHealth.message}
+                        </div>
+                    )}
+
+                    <div className="grid md:grid-cols-4 gap-3">
+                        <label className="space-y-1 md:col-span-2">
+                            <span className="text-xs font-semibold text-slate-300">TTS Endpoint</span>
+                            <input
+                                value={edgeSettings.endpointUrl}
+                                onChange={(e) => patchEdgeSettings({ endpointUrl: e.target.value })}
+                                placeholder="/api/edge-tts/tts"
+                                className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-100"
+                            />
+                        </label>
+                        <label className="space-y-1">
+                            <span className="text-xs font-semibold text-slate-300">Voice</span>
+                            <input
+                                value={edgeSettings.voice}
+                                onChange={(e) => patchEdgeSettings({ voice: e.target.value })}
+                                list="edge-tts-voices"
+                                className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-100"
+                            />
+                            <datalist id="edge-tts-voices">
+                                {[...EDGE_TTS_RECOMMENDED_VOICES, ...edgeVoices.filter((voice) => !EDGE_TTS_RECOMMENDED_VOICES.some((preset) => preset.id === voice.id))].map((voice) => (
+                                    <option key={voice.id} value={voice.id}>{voice.name}</option>
+                                ))}
+                            </datalist>
+                        </label>
+                        <label className="space-y-1">
+                            <span className="text-xs font-semibold text-slate-300">Health URL</span>
+                            <input
+                                value={edgeSettings.healthUrl}
+                                onChange={(e) => patchEdgeSettings({ healthUrl: e.target.value })}
+                                className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-100"
+                            />
+                        </label>
+                        <label className="space-y-1 md:col-span-2">
+                            <span className="text-xs font-semibold text-slate-300">Voices URL</span>
+                            <div className="flex gap-2">
+                                <input
+                                    value={edgeSettings.voicesUrl}
+                                    onChange={(e) => patchEdgeSettings({ voicesUrl: e.target.value })}
+                                    className="min-w-0 flex-1 bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-100"
+                                />
+                                <button
+                                    onClick={loadEdgeVoices}
+                                    disabled={edgeBusy !== null}
+                                    className="px-3 py-2 rounded bg-slate-700 text-slate-200 hover:bg-slate-600 disabled:opacity-50"
+                                    title="Load Edge voices"
+                                >
+                                    <RefreshCw className={`w-4 h-4 ${edgeBusy === 'voices' ? 'animate-spin' : ''}`} />
+                                </button>
+                            </div>
+                        </label>
+                        <label className="space-y-1">
+                            <span className="text-xs font-semibold text-slate-300">Model</span>
+                            <select
+                                value={edgeSettings.model}
+                                onChange={(e) => patchEdgeSettings({ model: e.target.value as 'tts-1' | 'tts-1-hd' })}
+                                className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-100"
+                            >
+                                <option value="tts-1">tts-1</option>
+                                <option value="tts-1-hd">tts-1-hd</option>
+                            </select>
+                        </label>
+                        <label className="space-y-1">
+                            <span className="text-xs font-semibold text-slate-300">Speed: {edgeSettings.speed.toFixed(2)}</span>
+                            <input
+                                type="range"
+                                min="0.5"
+                                max="2"
+                                step="0.05"
+                                value={edgeSettings.speed}
+                                onChange={(e) => patchEdgeSettings({ speed: Number(e.target.value) })}
+                                className="w-full"
+                            />
+                        </label>
+                    </div>
+
+                    <div className="bg-slate-950/60 border border-slate-700 rounded-lg p-3 space-y-3">
+                        <div className="flex items-center justify-between gap-3 flex-wrap">
+                            <div>
+                                <div className="text-sm font-semibold text-white">Test Edge TTS</div>
+                                <div className="text-xs text-slate-400">
+                                    Dung backend nhe cho luong TTS mac dinh. Khuyen dung cho VPS 2.4GB RAM.
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => patchEdgeSettings(DEFAULT_EDGE_TTS_SETTINGS)}
+                                className="px-3 py-2 rounded bg-slate-800 text-slate-300 text-xs hover:bg-slate-700"
+                            >
+                                Reset defaults
+                            </button>
+                        </div>
+                        <textarea
+                            value={edgeTestText}
+                            onChange={(e) => setEdgeTestText(e.target.value)}
+                            rows={2}
+                            className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-100"
+                        />
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <button
+                                onClick={testEdgeTts}
+                                disabled={edgeBusy !== null}
+                                className="px-4 py-2 rounded bg-cyan-600 text-white text-sm font-semibold hover:bg-cyan-500 disabled:opacity-50"
+                            >
+                                {edgeBusy === 'test' ? 'Generating...' : 'Test Edge TTS'}
+                            </button>
+                            {edgeTestAudio && <audio controls src={edgeTestAudio} className="h-9" />}
+                        </div>
+                        {edgeError && (
+                            <div className="text-xs text-red-200 bg-red-500/10 border border-red-500/30 rounded px-3 py-2">
+                                {edgeError}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
                 <div className="bg-slate-900/60 border border-purple-700/40 rounded-lg p-4 space-y-4">
                     <div className="flex items-start justify-between gap-3 flex-wrap">
                         <div>
                             <div className="font-semibold text-white flex items-center gap-2">
                                 <Volume2 className="w-4 h-4 text-purple-300" />
-                                OmniVoice / Voice Clone Studio
+                                OmniVoice Optional / Voice Clone Studio
                             </div>
                             <div className="text-xs text-slate-400 max-w-2xl">
-                                Tối ưu cho comic: clone voice một lần, TTS theo scene/chunk ngắn, tự sanitize tiếng Việt,
-                                retry thông minh và cache audio để giảm lỗi.
+                                Giu lai cho nhu cau clone voice cuc ky dac thu. Mac dinh nen tat tren may yeu hoac VPS nho vi mo hinh nay ton RAM/dung luong ro ret hon Edge TTS.
                             </div>
                         </div>
                         <div className="flex items-center gap-2">

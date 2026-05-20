@@ -3,6 +3,8 @@
 
 type CostPolicy = 'quality_first' | 'cost_saver' | 'speed_first';
 type ProviderName =
+  | 'openai_codex'
+  | 'openai_codex_image'
   | 'deepseek'
   | 'gemini'
   | 'openai'
@@ -13,7 +15,8 @@ type ProviderName =
   | 'sdxl_local'
   | 'tts_gemini'
   | 'tts_elevenlabs'
-  | 'tts_free';
+  | 'tts_free'
+  | 'tts_omnivoice';
 
 export interface ProviderConfig {
   id?: string;
@@ -38,25 +41,46 @@ interface RuntimeConfig {
   providers: ProviderConfig[];
 }
 
+const CODEX_OPENAI_BASE_URL_DEFAULT = 'http://127.0.0.1:10531/v1';
+const CODEX_IMAGE_ENDPOINT_DEFAULT = '/api/codex-image/generate';
+
 const readEnv = (key: string): string => {
   const meta = (import.meta as any)?.env?.[key];
-  if (meta !== undefined) return meta;
+  if (meta !== undefined && meta !== 'undefined' && meta !== 'null') return meta;
   if (typeof process !== 'undefined' && process.env && key in process.env) {
-    return process.env[key] as string;
+    const value = process.env[key] as string;
+    return value === 'undefined' || value === 'null' ? '' : value;
   }
   if (typeof window !== 'undefined') {
     const winVal = (window as any)[key];
-    if (winVal !== undefined) return winVal;
+    if (winVal !== undefined && winVal !== 'undefined' && winVal !== 'null') return winVal;
   }
   return '';
 };
 
+const readFlag = (keys: string[], defaultValue = false): boolean => {
+  for (const key of keys) {
+    const raw = readEnv(key);
+    if (!raw) continue;
+    const normalized = raw.trim().toLowerCase();
+    if (['1', 'true', 'yes', 'on'].includes(normalized)) return true;
+    if (['0', 'false', 'no', 'off'].includes(normalized)) return false;
+  }
+  return defaultValue;
+};
+
+const isGeminiEnabledFromEnv = (): boolean =>
+  readFlag(['VITE_GEMINI_ENABLED', 'GEMINI_ENABLED', 'VITE_ENABLE_GEMINI', 'ENABLE_GEMINI'], false);
+
 const parsePriority = (raw: string | undefined): ProviderName[] => {
   if (!raw) {
     return [
+      'openai_codex',
+      'openai_codex_image',
       'deepseek',
       'pollinations',
       'tts_free',
+      'tts_omnivoice',
       'gemini',
       'openai',
       'groq',
@@ -75,6 +99,25 @@ const parsePriority = (raw: string | undefined): ProviderName[] => {
 const buildProviders = (): ProviderConfig[] => {
   return [
     {
+      id: 'openai_codex',
+      name: 'openai_codex',
+      type: 'llm',
+      // Talks to the local openai-oauth proxy. It must not use a real sk-* key.
+      apiKey: readEnv('VITE_CODEX_OPENAI_API_KEY') || readEnv('CODEX_OPENAI_API_KEY') || 'codex-oauth-placeholder',
+      baseUrl: readEnv('VITE_CODEX_OPENAI_BASE_URL') || readEnv('CODEX_OPENAI_BASE_URL') || readEnv('VITE_OPENAI_BASE_URL') || readEnv('OPENAI_BASE_URL') || CODEX_OPENAI_BASE_URL_DEFAULT,
+      modelText: readEnv('VITE_CODEX_OPENAI_MODEL_TEXT') || readEnv('CODEX_OPENAI_MODEL_TEXT') || 'gpt-5.5',
+      free: false
+    },
+    {
+      id: 'openai_codex_image',
+      name: 'openai_codex_image',
+      type: 'image',
+      // Browser calls this same-origin endpoint; Vite/Colab dev server invokes codex-image-gen via Python.
+      baseUrl: readEnv('VITE_CODEX_IMAGE_GENERATE_URL') || readEnv('CODEX_IMAGE_GENERATE_URL') || CODEX_IMAGE_ENDPOINT_DEFAULT,
+      modelImage: readEnv('VITE_CODEX_IMAGE_MODEL') || readEnv('CODEX_IMAGE_MODEL') || 'gpt-image-2',
+      free: false
+    },
+    {
       id: 'deepseek',
       name: 'deepseek',
       type: 'llm',
@@ -87,6 +130,7 @@ const buildProviders = (): ProviderConfig[] => {
       id: 'gemini',
       name: 'gemini',
       type: 'llm',
+      enabled: isGeminiEnabledFromEnv(),
       apiKey: readEnv('VITE_GEMINI_API_KEY') || readEnv('GEMINI_API_KEY') || readEnv('GOOGLE_API_KEY') || readEnv('VITE_GOOGLE_API_KEY'),
       baseUrl: readEnv('GEMINI_BASE_URL'),
       modelText: readEnv('GEMINI_MODEL_TEXT') || 'gemini-2.5-flash',
@@ -97,6 +141,7 @@ const buildProviders = (): ProviderConfig[] => {
       id: 'tts_gemini',
       name: 'tts_gemini',
       type: 'tts',
+      enabled: isGeminiEnabledFromEnv(),
       apiKey: readEnv('VITE_GEMINI_API_KEY') || readEnv('GEMINI_API_KEY') || readEnv('GOOGLE_API_KEY') || readEnv('VITE_GOOGLE_API_KEY'),
       baseUrl: readEnv('GEMINI_BASE_URL'),
       ttsVoice: readEnv('GEMINI_TTS_VOICE') || 'Fenrir',
@@ -162,9 +207,18 @@ const buildProviders = (): ProviderConfig[] => {
     {
       name: 'tts_free',
       type: 'tts',
-      baseUrl: readEnv('TTS_FREE_URL') || '/api/omnivoice/tts',
-      ttsVoice: readEnv('TTS_FREE_VOICE') || 'default',
+      baseUrl: readEnv('TTS_FREE_URL') || '/api/edge-tts/tts',
+      ttsVoice: readEnv('TTS_FREE_VOICE') || 'vi-VN-HoaiMyNeural',
       apiKey: readEnv('TTS_FREE_KEY') || undefined,
+      free: true
+    },
+    {
+      id: 'tts_omnivoice',
+      name: 'tts_omnivoice',
+      type: 'tts',
+      baseUrl: readEnv('TTS_OMNIVOICE_URL') || '/api/omnivoice/tts',
+      ttsVoice: readEnv('TTS_OMNIVOICE_VOICE') || 'default',
+      apiKey: readEnv('TTS_OMNIVOICE_KEY') || undefined,
       free: true
     }
   ];
@@ -181,43 +235,82 @@ const normalizeType = (type: ProviderConfig['type']): 'llm' | 'image' | 'tts' =>
   return type === 'text' ? 'llm' : type;
 };
 
+const isProviderReady = (provider: ProviderConfig, type: 'llm' | 'image' | 'tts'): boolean => {
+  if (provider.enabled === false) return false;
+  if (type === 'llm') {
+    if ((provider.id === 'openai_codex' || provider.name === 'openai_codex') && provider.baseUrl) return true;
+    return !!provider.apiKey;
+  }
+  if (type === 'image') {
+    return !!provider.baseUrl;
+  }
+  if (provider.name === 'tts_elevenlabs' || provider.id === 'tts_elevenlabs') return !!provider.apiKey;
+  return !!provider.baseUrl;
+};
+
 const pick = (type: 'llm' | 'image' | 'tts'): ProviderConfig | undefined => {
   const { priority, useFreeOnly, providers } = runtimeConfig;
   for (const name of priority) {
     // MATCHING LOGIC FIX: Check id OR name
     const candidate = providers.find((p) => (p.id === name || p.name === name) && normalizeType(p.type) === type && p.enabled !== false);
     if (!candidate) continue;
-    if (type === 'tts' && candidate.name === 'tts_elevenlabs' && !candidate.apiKey) continue;
-    if (type === 'tts' && candidate.name === 'tts_free' && !candidate.baseUrl) continue;
-    if (type === 'llm' && !candidate.apiKey) continue;
     if (useFreeOnly && !candidate.free) continue;
-    if (candidate.apiKey || candidate.baseUrl) return normalizeProvider(candidate);
+    const normalized = normalizeProvider(candidate);
+    if (isProviderReady(normalized, type)) return normalized;
   }
   // Fallback by type if nothing in priority fits
-  const fallback = providers.find((p) => normalizeType(p.type) === type && p.enabled !== false && (!useFreeOnly || p.free));
+  const fallback = providers
+    .map(normalizeProvider)
+    .find((p) => normalizeType(p.type) === type && (!useFreeOnly || p.free) && isProviderReady(p, type));
   return fallback ? normalizeProvider(fallback) : undefined;
 };
 
 export const selectLLMProvider = (): ProviderConfig => {
   const provider = pick('llm');
   if (provider) return provider;
-  // Hard fallback to gemini placeholder to avoid crashes
-  return { name: 'gemini', type: 'llm', modelText: 'gemini-2.5-flash' };
+  throw new Error('No enabled LLM provider configured. Enable OpenAI Codex OAuth, DeepSeek, or another LLM provider in Settings.');
 };
 
-export const selectImageProvider = (): ProviderConfig => {
+export const selectImageProvider = (): ProviderConfig | undefined => {
   const provider = pick('image');
   if (provider) return provider;
-  return { name: 'gemini', type: 'image', modelImage: 'gemini-3-pro-image-preview' };
+  return undefined;
 };
 
 export const selectTTSProvider = (): ProviderConfig => {
   const provider = pick('tts');
   if (provider) return provider;
-  return { name: 'tts_free', type: 'tts', baseUrl: '/api/omnivoice/tts', free: true };
+  return { name: 'tts_free', type: 'tts', baseUrl: '/api/edge-tts/tts', free: true };
 };
 
 export const getRuntimeConfig = (): RuntimeConfig => runtimeConfig;
+
+export const isProviderFallbackEnabled = (): boolean => {
+  const raw = (readEnv('VITE_CODEX_PROVIDER_FALLBACK') || readEnv('CODEX_PROVIDER_FALLBACK') || 'true').toLowerCase();
+  return raw !== '0' && raw !== 'false' && raw !== 'off' && raw !== 'no';
+};
+
+export const getProviderById = (id: ProviderName | string): ProviderConfig | undefined => {
+  const provider = runtimeConfig.providers.find((p) => p.id === id || p.name === id);
+  return provider ? normalizeProvider(provider) : undefined;
+};
+
+const getEnabledProviderById = (id: ProviderName | string): ProviderConfig | undefined => {
+  const provider = runtimeConfig.providers.find((p) => (p.id === id || p.name === id) && p.enabled !== false);
+  return provider ? normalizeProvider(provider) : undefined;
+};
+
+export const getLLMFallbackProvider = (primary?: ProviderConfig): ProviderConfig | undefined => {
+  if (!isProviderFallbackEnabled()) return undefined;
+  if (primary?.id === 'deepseek' || primary?.name === 'deepseek') return undefined;
+  return getEnabledProviderById('deepseek');
+};
+
+export const getImageFallbackProvider = (primary?: ProviderConfig): ProviderConfig | undefined => {
+  if (!isProviderFallbackEnabled()) return undefined;
+  if (primary?.id === 'pollinations' || primary?.name === 'pollinations') return undefined;
+  return getEnabledProviderById('pollinations');
+};
 
 export const updateRuntimeConfig = (newProviders: ProviderConfig[]) => {
   runtimeConfig.providers = newProviders.map(normalizeProvider);
@@ -230,9 +323,36 @@ export const updateRuntimeConfig = (newProviders: ProviderConfig[]) => {
 const normalizeProvider = (provider: ProviderConfig): ProviderConfig => {
   const id = provider.id || provider.name;
   const name = provider.name || id;
+  const normalizedId = String(id).toLowerCase();
+  const normalizedName = String(name).toLowerCase();
   const type = normalizeType(provider.type);
   const modelText = provider.modelText || (type === 'llm' ? provider.model : undefined);
   const modelImage = provider.modelImage || (type === 'image' ? provider.model : undefined);
+
+  if (normalizedId === 'openai_codex_image' || normalizedName === 'openai_codex_image' || normalizedName.includes('codex image')) {
+    return {
+      ...provider,
+      id: 'openai_codex_image',
+      name: 'openai_codex_image',
+      type,
+      baseUrl: provider.baseUrl || readEnv('VITE_CODEX_IMAGE_GENERATE_URL') || readEnv('CODEX_IMAGE_GENERATE_URL') || CODEX_IMAGE_ENDPOINT_DEFAULT,
+      modelImage: modelImage || readEnv('VITE_CODEX_IMAGE_MODEL') || readEnv('CODEX_IMAGE_MODEL') || 'gpt-image-2',
+      free: false
+    };
+  }
+
+  if (normalizedId === 'openai_codex' || normalizedName === 'openai_codex' || normalizedName.includes('codex oauth')) {
+    return {
+      ...provider,
+      id: 'openai_codex',
+      name: 'openai_codex',
+      type,
+      apiKey: provider.apiKey || readEnv('VITE_CODEX_OPENAI_API_KEY') || readEnv('CODEX_OPENAI_API_KEY') || 'codex-oauth-placeholder',
+      baseUrl: provider.baseUrl || readEnv('VITE_CODEX_OPENAI_BASE_URL') || readEnv('CODEX_OPENAI_BASE_URL') || CODEX_OPENAI_BASE_URL_DEFAULT,
+      modelText: modelText || readEnv('VITE_CODEX_OPENAI_MODEL_TEXT') || readEnv('CODEX_OPENAI_MODEL_TEXT') || 'gpt-5.5',
+      free: false
+    };
+  }
 
   if (id === 'deepseek' || name.toLowerCase().includes('deepseek')) {
     return {
@@ -265,9 +385,22 @@ const normalizeProvider = (provider: ProviderConfig): ProviderConfig => {
       id: 'tts_free',
       name: 'tts_free',
       type,
-      baseUrl: provider.baseUrl || readEnv('VITE_TTS_FREE_URL') || readEnv('TTS_FREE_URL') || '/api/omnivoice/tts',
-      ttsVoice: provider.ttsVoice || readEnv('VITE_TTS_FREE_VOICE') || readEnv('TTS_FREE_VOICE') || 'default',
+      baseUrl: provider.baseUrl || readEnv('VITE_TTS_FREE_URL') || readEnv('TTS_FREE_URL') || '/api/edge-tts/tts',
+      ttsVoice: provider.ttsVoice || readEnv('VITE_TTS_FREE_VOICE') || readEnv('TTS_FREE_VOICE') || 'vi-VN-HoaiMyNeural',
       apiKey: provider.apiKey || readEnv('VITE_TTS_FREE_KEY') || readEnv('TTS_FREE_KEY') || undefined,
+      free: true
+    };
+  }
+
+  if (id === 'tts_omnivoice' || name.toLowerCase().includes('omnivoice')) {
+    return {
+      ...provider,
+      id: 'tts_omnivoice',
+      name: 'tts_omnivoice',
+      type,
+      baseUrl: provider.baseUrl || readEnv('VITE_TTS_OMNIVOICE_URL') || readEnv('TTS_OMNIVOICE_URL') || '/api/omnivoice/tts',
+      ttsVoice: provider.ttsVoice || readEnv('VITE_TTS_OMNIVOICE_VOICE') || readEnv('TTS_OMNIVOICE_VOICE') || 'default',
+      apiKey: provider.apiKey || readEnv('VITE_TTS_OMNIVOICE_KEY') || readEnv('TTS_OMNIVOICE_KEY') || undefined,
       free: true
     };
   }
@@ -278,6 +411,7 @@ const normalizeProvider = (provider: ProviderConfig): ProviderConfig => {
       id: 'gemini',
       name: 'gemini',
       type,
+      enabled: provider.enabled ?? isGeminiEnabledFromEnv(),
       apiKey: provider.apiKey || readEnv('VITE_GEMINI_API_KEY') || readEnv('GEMINI_API_KEY') || readEnv('GOOGLE_API_KEY') || readEnv('VITE_GOOGLE_API_KEY'),
       baseUrl: provider.baseUrl || readEnv('GEMINI_BASE_URL'),
       modelText: modelText || readEnv('GEMINI_MODEL_TEXT') || 'gemini-2.5-flash',

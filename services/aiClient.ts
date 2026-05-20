@@ -1,5 +1,6 @@
 import { GoogleGenAI, Schema, Type } from "@google/genai";
-import { ProviderConfig, selectLLMProvider } from "./providerConfig";
+import { ProviderConfig, getLLMFallbackProvider, selectLLMProvider } from "./providerConfig";
+import { callOpenAICodexOAuth, isOpenAICodexProvider } from "./openaiCodexClient";
 
 export interface LLMRequestOptions {
   prompt: string;
@@ -29,11 +30,21 @@ const getEnvValue = (key: string): string => {
   return "";
 };
 
-const resolveGeminiApiKey = (): string => {
-  const provider = selectLLMProvider();
-  if (provider?.name === "gemini" && provider.apiKey) {
+const isGeminiEnabled = (): boolean => {
+  const raw =
+    getEnvValue("VITE_GEMINI_ENABLED") ||
+    getEnvValue("GEMINI_ENABLED") ||
+    getEnvValue("VITE_ENABLE_GEMINI") ||
+    getEnvValue("ENABLE_GEMINI");
+  return ["1", "true", "yes", "on"].includes(raw.trim().toLowerCase());
+};
+
+const resolveGeminiApiKey = (provider?: ProviderConfig): string => {
+  if (provider?.name === "gemini" && provider.enabled !== false && provider.apiKey) {
     return provider.apiKey;
   }
+
+  if (!isGeminiEnabled()) return "";
 
   for (const key of GEMINI_KEY_SOURCES) {
     const value = getEnvValue(key);
@@ -44,10 +55,10 @@ const resolveGeminiApiKey = (): string => {
   return windowEnv || "";
 };
 
-export const getGeminiClient = (): GoogleGenAI => {
-  const apiKey = resolveGeminiApiKey();
+export const getGeminiClient = (provider?: ProviderConfig): GoogleGenAI => {
+  const apiKey = resolveGeminiApiKey(provider);
   if (!apiKey) {
-    throw new Error("Missing GEMINI_API_KEY. Set VITE_GEMINI_API_KEY in your environment.");
+    throw new Error("Gemini provider is not enabled or missing GEMINI_API_KEY.");
   }
   return new GoogleGenAI({ apiKey });
 };
@@ -234,9 +245,13 @@ const callAnthropic = async (provider: ProviderConfig, prompt: string, options: 
 
 export const callLLM = async (options: LLMRequestOptions): Promise<string> => {
   const provider = selectLLMProvider();
+  const callProvider = async (activeProvider: ProviderConfig): Promise<string> => {
+    if (isOpenAICodexProvider(activeProvider)) {
+      return callOpenAICodexOAuth(activeProvider, options.prompt, options);
+    }
 
-  if (!provider || provider.name === "gemini") {
-    const ai = getGeminiClient();
+    if (activeProvider.name === "gemini") {
+    const ai = getGeminiClient(activeProvider);
     const config: Record<string, any> = options.schema
       ? {
           responseMimeType: "application/json",
@@ -252,16 +267,26 @@ export const callLLM = async (options: LLMRequestOptions): Promise<string> => {
     }
 
     const response = await ai.models.generateContent({
-      model: provider?.modelText || "gemini-2.5-flash",
+      model: activeProvider?.modelText || "gemini-2.5-flash",
       contents: options.prompt,
       ...(Object.keys(config).length ? { config } : {})
     });
     return (response.text || "").trim();
   }
 
-  if (provider.name === "anthropic") {
-    return callAnthropic(provider, options.prompt, options);
-  }
+    if (activeProvider.name === "anthropic") {
+      return callAnthropic(activeProvider, options.prompt, options);
+    }
 
-  return callOpenAICompatible(provider, options.prompt, options);
+    return callOpenAICompatible(activeProvider, options.prompt, options);
+  };
+
+  try {
+    return await callProvider(provider);
+  } catch (error: any) {
+    const fallback = getLLMFallbackProvider(provider);
+    if (!fallback) throw error;
+    console.warn(`[provider-fallback] LLM ${provider.id || provider.name} failed: ${error?.message || error}. Falling back to ${fallback.id || fallback.name}.`);
+    return await callProvider(fallback);
+  }
 };

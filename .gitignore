@@ -10,6 +10,11 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+.cache
+.venv-omnivoice
+.venv-codex-image
+.venv-edge-tts
+*.pid
 *.local
 
 # Editor directories and files
@@ -23,7 +28,6 @@ dist-ssr
 *.sln
 *.sw?
 
-
 # Runtime secrets
 .env
 .env.local
@@ -34,6 +38,8 @@ node_modules/
 dist/
 .cache/
 .venv-omnivoice/
+.venv-codex-image/
+.venv-edge-tts/
 .omx/
 *.log
 *.pid

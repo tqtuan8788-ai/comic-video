@@ -1,4 +1,6 @@
-# Python dependencies for optional OmniVoice local TTS on Colab.
+# Python dependencies for optional local TTS backends on Colab.
 # The React/Vite UI itself is installed with npm ci.
+edge-tts
 omnivoice
 soundfile
+codex-image-gen==0.2.1

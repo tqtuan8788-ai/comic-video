@@ -4,6 +4,8 @@ dist/
 dist-ssr/
 .cache/
 .venv-omnivoice/
+.venv-codex-image/
+.venv-edge-tts/
 
 # Runtime files
 *.log

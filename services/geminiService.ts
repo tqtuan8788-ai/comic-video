@@ -1,10 +1,12 @@
 import { Type, Schema, Modality } from "@google/genai";
 import { NormalizedInput, StoryAnalysis, Scene, StoryboardElement, Character, SceneFull } from "../types";
 import { callLLM, getGeminiClient } from "./aiClient";
-import { ProviderConfig, selectImageProvider, selectTTSProvider } from "./providerConfig";
+import { ProviderConfig, getImageFallbackProvider, selectImageProvider, selectTTSProvider } from "./providerConfig";
+import { generateEdgeTtsAudio, getEdgeTtsSettings } from "./edgeTts";
 import { getGeminiTtsVoice } from "./ttsSettings";
 import { generateOmniVoiceAudio, getOmniVoiceSettings } from "./omniVoice";
 import { isTextGroundedInScene } from "./assetBinding";
+import { generateOpenAICodexImage, isOpenAICodexImageProvider } from "./openaiCodexImage";
 import {
   DIRECTOR_SYSTEM_PROMPT,
   TIKTOK_OPTIMIZATION_PROMPT,
@@ -694,73 +696,53 @@ export const generateComicImage = async (
   worldContext: string = ''
 ): Promise<string> => {
   const provider = selectImageProvider();
+  if (!provider) {
+    throw new Error('No enabled image provider configured. Enable OpenAI Codex Image, Pollinations, or SDXL Local in Settings.');
+  }
   return await retryOperation(async () => {
-    const parts: any[] = [];
-    const { buildStyledPrompt, getStyleConfig } = await import('../prompts/artStyles');
+    const { getStyleConfig } = await import('../prompts/artStyles');
 
-    // 1. Cinematic Director Prompt for Visual Consistency with Art Style
-    const worldAnchor = worldContext?.trim()
-      ? `GLOBAL WORLD/SETTING (stay consistent every scene): ${worldContext.trim()}
-- Keep same city/era/weather/props across all frames.
-- Reuse motifs and wardrobe unless the scene explicitly changes them.
-- Vietnamese cast unless otherwise specified.`
-      : `GLOBAL WORLD/SETTING: keep the same location, era, weather, and wardrobe across scenes.`;
+    const compactImagePrompt = buildPollinationsPrompt(
+      prompt,
+      characters,
+      artStyle,
+      worldContext,
+      getStyleConfig(artStyle as any)
+    );
 
-    const continuityGuard = `
-STYLE LOCK: One art style only (${artStyle}). No mixing realistic/anime/comic; match the selected style for every scene.
-CONTINUITY LOCK: Keep characters/faces/outfits consistent unless this scene asks for a change.
-NO GENRE DRIFT: Do not switch to fantasy/ancient/other worlds unless the prompt says so.`;
+    if (isOpenAICodexImageProvider(provider)) {
+      try {
+        return await generateOpenAICodexImage({
+          prompt: compactImagePrompt,
+          provider,
+          size: '1024x1792',
+          outputFormat: 'png'
+        });
+      } catch (error: any) {
+        const fallback = getImageFallbackProvider(provider);
+        if (!fallback) throw error;
+        console.warn(`[provider-fallback] Image ${provider.id || provider.name} failed: ${error?.message || error}. Falling back to ${fallback.id || fallback.name}.`);
+        if (fallback.name === 'pollinations' || fallback.id === 'pollinations') {
+          return await generatePollinationsImage(compactImagePrompt, fallback);
+        }
+        throw error;
+      }
+    }
 
     if (provider?.name === 'pollinations') {
-      const pollinationsPrompt = buildPollinationsPrompt(
+      return await generatePollinationsImage(compactImagePrompt, provider);
+    }
+
+    if (provider?.name === 'sdxl_local') {
+      const localPrompt = buildPollinationsPrompt(
         prompt,
         characters,
         artStyle,
         worldContext,
         getStyleConfig(artStyle as any)
       );
-      return await generatePollinationsImage(pollinationsPrompt, provider);
-    }
-
-    const styledPrompt = buildStyledPrompt(
-      `${DIRECTOR_SYSTEM_PROMPT}
-
-Create a 9:16 cinematic comic panel for the scene below.
-
-${VISUAL_PROMPT_ENHANCER}
-
-${worldAnchor}
-
-SCENE DESCRIPTION:
-${prompt}
-
-${continuityGuard}
-
-CASTING RULES:
-- Face reference images are provided below.
-- Keep characters consistent with those references; do not invent new faces.
-
-STYLE RULES:
-- 100% consistent with the selected art style.
-- No mixed styles, no speech bubbles, no UI or text overlays.
-- Cinematic lighting, high detail.
-- ABSOLUTELY PORTRAIT 9:16 (vertical). Do not generate landscape. Do not rotate.
-- Portrait framing only: avoid landscape spacing, no horizontal staging.
-- Subjects must fit naturally in portrait frame; fill the frame vertically.
-- Use power areas of a portrait frame (upper third/central), avoid empty side space.
-- Add depth: foreground/background separation, directional light, shadows.
-- Imply camera movement (push-in/tilt/pan feel) through composition cues.
-
-QUALITY CHECK:
-${QUALITY_CHECK_PROMPT}
-
-Before generating, verify style consistency, face consistency, and overall coherence.`,
-      artStyle as any
-    );
-
-    if (provider?.name === 'sdxl_local') {
       const payload = {
-        prompt: styledPrompt,
+        prompt: localPrompt,
         artStyle,
         worldContext,
         references: characters
@@ -794,65 +776,7 @@ Before generating, verify style consistency, face consistency, and overall coher
       return normalized;
     }
 
-    const ai = getGeminiClient();
-    parts.push({ text: styledPrompt });
-
-    // 2. Add Character Reference Images for Consistency
-    characters.forEach((char) => {
-      if (char.reference_image) {
-        const base64Data = char.reference_image.includes('base64,')
-          ? char.reference_image.split(',')[1]
-          : char.reference_image;
-
-        if (base64Data) {
-          parts.push({ text: `\n**Exact face reference for character "${char.name}":**` });
-          parts.push({
-            inlineData: {
-              mimeType: "image/png",
-              data: base64Data
-            }
-          });
-        }
-      }
-    });
-
-    // 3. Call Imagen Model with proper structure
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-pro-image-preview',
-      contents: { parts },  // Correct structure
-      config: {
-        imageConfig: {
-          aspectRatio: "9:16",
-          imageSize: "1K"
-        }
-      }
-    });
-
-    // 4. Extract Generated Image with better error handling
-    console.log("[DEBUG] Image generation response received, checking for image data...");
-
-    if (!response || !response.candidates || response.candidates.length === 0) {
-      console.error("[ERROR] No candidates in image response");
-      throw new Error("No image candidates generated - check API quota");
-    }
-
-    const candidate = response.candidates[0];
-    if (!candidate || !candidate.content || !candidate.content.parts) {
-      console.error("[ERROR] Invalid candidate structure:", candidate);
-      throw new Error("Invalid image response structure");
-    }
-
-    for (const part of candidate.content.parts) {
-      if (part.inlineData && part.inlineData.data) {
-        console.log("[DEBUG] Image successfully extracted, size:", part.inlineData.data.length);
-        const base64 = part.inlineData.data;
-        await ensurePortraitOrientation(base64);
-        return `data:image/png;base64,${base64}`;
-      }
-    }
-
-    console.error("[ERROR] No inlineData found in parts");
-    throw new Error("No image data in response - model may not support image generation");
+    throw new Error(`Unsupported image provider "${provider.id || provider.name}". Enable OpenAI Codex Image, Pollinations, or SDXL Local in Settings.`);
   });
 };
 
@@ -1036,15 +960,27 @@ const generateExternalTTS = async (text: string, provider: ProviderConfig): Prom
   }
 
   const omniSettings = getOmniVoiceSettings();
+  const edgeSettings = getEdgeTtsSettings();
   const providerLooksLikeOmniVoice =
-    provider.id === 'tts_free' ||
-    provider.name === 'tts_free' ||
+    provider.id === 'tts_omnivoice' ||
+    provider.name === 'tts_omnivoice' ||
     provider.name.toLowerCase().includes('omnivoice') ||
     (provider.baseUrl || '').toLowerCase().includes('omnivoice') ||
     (provider.baseUrl || '') === omniSettings.endpointUrl;
 
   if (providerLooksLikeOmniVoice) {
     return generateOmniVoiceAudio(text, provider);
+  }
+
+  const providerLooksLikeEdgeTts =
+    provider.id === 'tts_free' ||
+    provider.name === 'tts_free' ||
+    provider.name.toLowerCase().includes('edge') ||
+    (provider.baseUrl || '').toLowerCase().includes('edge-tts') ||
+    (provider.baseUrl || '') === edgeSettings.endpointUrl;
+
+  if (providerLooksLikeEdgeTts) {
+    return generateEdgeTtsAudio(text, provider);
   }
 
   const headers: Record<string, string> = {
@@ -1066,7 +1002,12 @@ const generateExternalTTS = async (text: string, provider: ProviderConfig): Prom
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`External TTS error ${response.status}: ${errorText}`);
+    const err = new Error(`External TTS error ${response.status}: ${errorText}`) as Error & { status?: number; retryable?: boolean };
+    err.status = response.status;
+    if (response.status === 429 || response.status === 500 || response.status === 503) {
+      err.retryable = true;
+    }
+    throw err;
   }
 
   const contentType = response.headers.get('content-type') || '';
@@ -1077,7 +1018,12 @@ const generateExternalTTS = async (text: string, provider: ProviderConfig): Prom
     if (!audioBase64 && data.url) {
       const audioResponse = await fetch(data.url);
       if (!audioResponse.ok) {
-        throw new Error(`External TTS fetch error ${audioResponse.status}`);
+        const err = new Error(`External TTS fetch error ${audioResponse.status}`) as Error & { status?: number; retryable?: boolean };
+        err.status = audioResponse.status;
+        if (audioResponse.status === 429 || audioResponse.status === 500 || audioResponse.status === 503) {
+          err.retryable = true;
+        }
+        throw err;
       }
       const buffer = await audioResponse.arrayBuffer();
       audioBase64 = arrayBufferToBase64(buffer);
@@ -1102,15 +1048,21 @@ export const generatePlayableAudio = async (
   options?: { voiceName?: string; languageCode?: string }
 ): Promise<string> => {
   const provider = selectTTSProvider();
+  if (provider?.name === 'tts_omnivoice') {
+    return await retryOperation(() => generateExternalTTS(text, provider));
+  }
   if (provider?.name === 'tts_elevenlabs') {
     return await retryOperation(() => generateElevenLabsAudio(text, provider));
   }
   if (provider?.name === 'tts_free') {
     return await retryOperation(() => generateExternalTTS(text, provider));
   }
+  if (provider?.name !== 'tts_gemini' && provider?.id !== 'tts_gemini' && provider?.name !== 'gemini') {
+    throw new Error(`Unsupported TTS provider "${provider?.id || provider?.name || 'unknown'}". Enable OpenAI Edge TTS, OmniVoice, ElevenLabs, or Gemini TTS explicitly.`);
+  }
   try {
     return await retryOperation(async () => {
-      const ai = getGeminiClient();
+      const ai = getGeminiClient(provider);
       console.log("[DEBUG] Generating audio for text:", text.substring(0, 50));
 
       const voiceName = (options?.voiceName || getGeminiTtsVoice() || provider?.ttsVoice || '').trim();
