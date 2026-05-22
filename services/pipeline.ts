@@ -18,6 +18,7 @@ import {
   generatePlayableAudio,
   polishSceneScript,
 } from './geminiService';
+import { setOmniVoiceReferenceSample } from './omniVoice';
 
 // ── Types ──────────────────────────────────────────────────────────
 
@@ -27,6 +28,12 @@ export interface PipelineConfig {
   languageCode?: string;
   sceneCount?: number;
   allowRewriteForViral?: boolean;
+  autoImprove?: boolean;
+  storyExpansion?: boolean;
+  visualConsistency?: boolean;
+  promptEnhance?: string;
+  referenceAudioBase64?: string;
+  referenceAudioMimeType?: string;
   worldContext?: string;
   characters?: Character[];
   onProgress?: (step: string, detail: string) => void;
@@ -210,10 +217,18 @@ export async function runFullPipeline(
   const assets: SceneAsset[] = [];
   for (let i = 0; i < scenesFull.length; i++) {
     const scene = scenesFull[i];
-    const visualPrompt =
+    const storyboard = scene.storyboard;
+    const visualPrompt = [
       (scene as any).visual_prompt ||
-      (typeof scene.storyboard === 'object' && (scene.storyboard as any)?.visual_prompt) ||
-      scene.summary;
+      (typeof storyboard === 'object' && (storyboard as any)?.visual_prompt) ||
+      scene.summary,
+      typeof storyboard === 'object' && (storyboard as any)?.shot ? `Shot type: ${(storyboard as any).shot}` : '',
+      typeof storyboard === 'object' && (storyboard as any)?.angle ? `Camera angle: ${(storyboard as any).angle}` : '',
+      typeof storyboard === 'object' && (storyboard as any)?.background ? `Setting: ${(storyboard as any).background}` : '',
+      typeof storyboard === 'object' && (storyboard as any)?.lighting ? `Lighting: ${(storyboard as any).lighting}` : '',
+      typeof storyboard === 'object' && (storyboard as any)?.action ? `Character action: ${(storyboard as any).action}` : '',
+      config.promptEnhance || '',
+    ].filter(Boolean).join('. ');
 
     let imageBase64 = '';
     let audioBase64 = '';
@@ -229,6 +244,22 @@ export async function runFullPipeline(
       );
     } catch (e: any) {
       errors.push(`image[${i}]: ${e.message}`);
+    }
+
+    // Set OmniVoice reference sample if provided
+    if (config.referenceAudioBase64 && i === 0) {
+      try {
+        setOmniVoiceReferenceSample({
+          name: 'reference_sample',
+          mimeType: config.referenceAudioMimeType || 'audio/wav',
+          size: Math.ceil(config.referenceAudioBase64.length * 0.75),
+          dataUri: `data:${config.referenceAudioMimeType || 'audio/wav'};base64,${config.referenceAudioBase64}`,
+          base64: config.referenceAudioBase64,
+        });
+        console.log('[pipeline] OmniVoice reference sample set');
+      } catch (e: any) {
+        console.warn('[pipeline] Failed to set OmniVoice reference sample:', e.message);
+      }
     }
 
     // Generate audio

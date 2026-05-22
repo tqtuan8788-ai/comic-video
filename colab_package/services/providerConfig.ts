@@ -75,13 +75,13 @@ const isGeminiEnabledFromEnv = (): boolean =>
 const parsePriority = (raw: string | undefined): ProviderName[] => {
   if (!raw) {
     return [
+      'deepseek',
+      'gemini',
+      'pollinations',
+      'tts_omnivoice',
+      'tts_free',
       'openai_codex',
       'openai_codex_image',
-      'deepseek',
-      'pollinations',
-      'tts_free',
-      'tts_omnivoice',
-      'gemini',
       'openai',
       'groq',
       'openrouter',

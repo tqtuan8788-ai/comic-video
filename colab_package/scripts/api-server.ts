@@ -90,14 +90,21 @@ async function handleRequest(req: http.IncomingMessage, res: http.ServerResponse
         return json(res, { error: 'Missing "script" field in request body' }, 400);
       }
 
+      const opts = params.options || {};
       const config: PipelineConfig = {
         artStyle: params.artStyle || params.style || 'comic_manhua',
         voiceName: params.voiceName || params.voice || 'vi-VN-HoaiMyNeural',
         languageCode: params.languageCode || 'vi-VN',
         sceneCount: params.sceneCount || params.scenes,
-        allowRewriteForViral: params.allowRewriteForViral ?? false,
-        worldContext: params.worldContext || params.context,
-        characters: params.characters,
+        allowRewriteForViral: params.allowRewriteForViral ?? opts.allowRewriteForViral ?? false,
+        autoImprove: opts.autoImprove ?? false,
+        storyExpansion: opts.storyExpansion ?? false,
+        visualConsistency: opts.visualConsistency ?? false,
+        promptEnhance: opts.promptEnhance || undefined,
+        referenceAudioBase64: params.referenceAudioBase64 || opts.referenceAudioBase64 || undefined,
+        referenceAudioMimeType: params.referenceAudioMimeType || opts.referenceAudioMimeType || 'audio/wav',
+        worldContext: params.worldContext || params.context || opts.worldContext,
+        characters: params.characters || opts.characters,
         onProgress: (step: string, detail: string) => {
           setJobProgress(job.id, step, detail);
         },
