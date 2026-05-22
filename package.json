@@ -8,7 +8,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run tests/smokeTests.test.ts",
-    "omnivoice:local": "python3 scripts/omnivoice-api-server.py"
+    "omnivoice:local": "python3 scripts/omnivoice-api-server.py",
+    "api": "npx tsx scripts/api-server.ts",
+    "api:dev": "npx tsx watch scripts/api-server.ts"
   },
   "dependencies": {
     "@google/genai": "^1.31.0",
@@ -22,6 +24,7 @@
     "autoprefixer": "^10.4.22",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.14",
+    "tsx": "^4.19.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.0",
     "vitest": "^4.0.15"
